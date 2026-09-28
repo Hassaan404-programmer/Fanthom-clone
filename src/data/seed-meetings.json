@@ -1,0 +1,1950 @@
+[
+  {
+    "id": "m-001",
+    "title": "Q4 AI Platform Architecture & Product Strategy Kickoff",
+    "date": "2026-09-25T14:00:00.000Z",
+    "durationSec": 3600,
+    "meetingType": "General",
+    "videoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    "participants": [
+      {
+        "id": "p1",
+        "name": "Sarah Jenkins",
+        "email": "sarah.jenkins@fathom.ai",
+        "role": "VP of Product",
+        "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150"
+      },
+      {
+        "id": "p2",
+        "name": "Alex Rivera",
+        "email": "alex.rivera@fathom.ai",
+        "role": "Lead Architect",
+        "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150"
+      },
+      {
+        "id": "p3",
+        "name": "Marcus Chen",
+        "email": "marcus.chen@fathom.ai",
+        "role": "Tech Lead",
+        "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150"
+      },
+      {
+        "id": "p4",
+        "name": "Elena Rostova",
+        "email": "elena.rostova@fathom.ai",
+        "role": "Design Director",
+        "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
+      },
+      {
+        "id": "p5",
+        "name": "David Kim",
+        "email": "david.kim@fathom.ai",
+        "role": "Senior Frontend Dev",
+        "avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150"
+      },
+      {
+        "id": "p6",
+        "name": "Rachel Adams",
+        "email": "rachel.adams@fathom.ai",
+        "role": "Product Manager",
+        "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150"
+      },
+      {
+        "id": "p7",
+        "name": "James Wilson",
+        "email": "james.wilson@fathom.ai",
+        "role": "DevOps Lead",
+        "avatar": "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150"
+      },
+      {
+        "id": "p8",
+        "name": "Maya Patel",
+        "email": "maya.patel@fathom.ai",
+        "role": "QA Lead",
+        "avatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150"
+      }
+    ],
+    "chapters": [
+      {
+        "id": "c1-1",
+        "title": "Welcome & Q4 Executive Objectives",
+        "startSec": 0,
+        "endSec": 480
+      },
+      {
+        "id": "c1-2",
+        "title": "Current Architecture Bottlenecks & Scale Requirements",
+        "startSec": 480,
+        "endSec": 1050
+      },
+      {
+        "id": "c1-3",
+        "title": "AI Agent & Workflow Pipeline Proposal",
+        "startSec": 1050,
+        "endSec": 1800
+      },
+      {
+        "id": "c1-4",
+        "title": "Frontend UX & Real-time Collaboration Specs",
+        "startSec": 1800,
+        "endSec": 2400
+      },
+      {
+        "id": "c1-5",
+        "title": "Infrastructure, Cost & Latency Benchmarks",
+        "startSec": 2400,
+        "endSec": 3000
+      },
+      {
+        "id": "c1-6",
+        "title": "Action Items, QA Strategy & Q4 Timeline",
+        "startSec": 3000,
+        "endSec": 3600
+      }
+    ],
+    "summaries": {
+      "general": "The engineering and product leadership aligned on Q4 goals: scaling Fathom to 50,000 monthly meetings, achieving sub-300ms transcription latency, and introducing template-based AI summaries. Alex & Marcus detailed the event-driven Redis pub/sub receiver architecture. Elena presented the split-screen user interface with real-time highlights and virtualized transcript playback.",
+      "sales": "Target Commercial Outcome: Sub-300ms transcription latency positioning enables Fathom to secure Enterprise SLAs. Estimated infrastructure cost savings of 38% via TensorRT FP16 model optimizations on T4 GPUs.",
+      "oneOnOne": "Sarah Jenkins aligned with Rachel Adams on ownership of the 6-week release timeline and cross-functional team milestones.",
+      "standup": "Identified core bottleneck in worker pod memory starvation during peak volume. Decoupled WebRTC receiver from speech inference via Redis buffer. LocalStorage state persistence added to prevent highlight data loss.",
+      "actionItems": [
+        "Alex Rivera: Publish technical RFC for tokenized WebSocket streaming protocol by Friday.",
+        "Elena Rostova: Export high-fidelity Figma icons and participant badges by Wednesday.",
+        "Marcus Chen & David Kim: Finalize local storage persistence fallback and virtual list scrolling.",
+        "James Wilson: Provision staging Kubernetes clusters with GPU autoscaling.",
+        "Maya Patel: Build Playwright automated test suite for multi-speaker overlap scenarios."
+      ]
+    },
+    "transcript": [
+      {
+        "id": "t1-001",
+        "speaker": "Sarah Jenkins",
+        "startSec": 5,
+        "endSec": 20,
+        "text": "Good morning everyone. Welcome to the Q4 AI Platform Strategy and Architecture kickoff."
+      },
+      {
+        "id": "t1-002",
+        "speaker": "Rachel Adams",
+        "startSec": 22,
+        "endSec": 35,
+        "text": "Excited to be here, Sarah. We have ambitious goals for this quarter, especially around scale and latency."
+      },
+      {
+        "id": "t1-003",
+        "speaker": "Sarah Jenkins",
+        "startSec": 37,
+        "endSec": 55,
+        "text": "Our primary target for Q4 is doubling our concurrent meeting capacity while cutting transcription latency to under 300ms."
+      },
+      {
+        "id": "t1-004",
+        "speaker": "Alex Rivera",
+        "startSec": 57,
+        "endSec": 75,
+        "text": "That latency target is aggressive, but with our new streaming pipeline proposal, it's definitely within reach."
+      },
+      {
+        "id": "t1-005",
+        "speaker": "Marcus Chen",
+        "startSec": 77,
+        "endSec": 95,
+        "text": "From the core backend perspective, our bottleneck has been payload deserialization during peak volume spikes."
+      },
+      {
+        "id": "t1-006",
+        "speaker": "Elena Rostova",
+        "startSec": 97,
+        "endSec": 115,
+        "text": "And on the UI side, users have requested faster visual updates when highlights are created in real time."
+      },
+      {
+        "id": "t1-007",
+        "speaker": "David Kim",
+        "startSec": 117,
+        "endSec": 135,
+        "text": "Right now the state hydration causes a slight UI flicker when multiple participants bookmark simultaneously."
+      },
+      {
+        "id": "t1-008",
+        "speaker": "James Wilson",
+        "startSec": 137,
+        "endSec": 155,
+        "text": "DevOps is ready to support the new node clusters. We've benchmarked auto-scaling groups on AWS."
+      },
+      {
+        "id": "t1-009",
+        "speaker": "Maya Patel",
+        "startSec": 157,
+        "endSec": 175,
+        "text": "We need to ensure regression suites cover multi-speaker audio overlap tests before we deploy to staging."
+      },
+      {
+        "id": "t1-010",
+        "speaker": "Sarah Jenkins",
+        "startSec": 177,
+        "endSec": 195,
+        "text": "Great call Maya. Quality can't take a back seat to speed. Rachel, can you review the product roadmap highlights?"
+      },
+      {
+        "id": "t1-011",
+        "speaker": "Rachel Adams",
+        "startSec": 197,
+        "endSec": 215,
+        "text": "Phase 1 focuses on real-time transcript streaming. Phase 2 introduces template-based smart summaries."
+      },
+      {
+        "id": "t1-012",
+        "speaker": "Rachel Adams",
+        "startSec": 217,
+        "endSec": 235,
+        "text": "Phase 3 will add localized storage persistence for off-line editing and instant highlight sharing."
+      },
+      {
+        "id": "t1-013",
+        "speaker": "Marcus Chen",
+        "startSec": 237,
+        "endSec": 255,
+        "text": "Phase 3 aligns nicely with our effort to reduce database round-trips for non-critical transient user notes."
+      },
+      {
+        "id": "t1-014",
+        "speaker": "Elena Rostova",
+        "startSec": 257,
+        "endSec": 275,
+        "text": "We've also redesigned the sidebar layout to make switching between Sales, Standup, and 1:1 templates instantaneous."
+      },
+      {
+        "id": "t1-015",
+        "speaker": "David Kim",
+        "startSec": 277,
+        "endSec": 295,
+        "text": "I've already tested pre-rendering those templates on the client, and load times are under 50ms."
+      },
+      {
+        "id": "t1-016",
+        "speaker": "Sarah Jenkins",
+        "startSec": 297,
+        "endSec": 315,
+        "text": "Outstanding. Let's dive deep into the architectural challenges we need Alex and Marcus to address."
+      },
+      {
+        "id": "t1-017",
+        "speaker": "Alex Rivera",
+        "startSec": 317,
+        "endSec": 335,
+        "text": "We should also look at how WebSockets handle reconnects during transient mobile network drops."
+      },
+      {
+        "id": "t1-018",
+        "speaker": "Marcus Chen",
+        "startSec": 337,
+        "endSec": 355,
+        "text": "I propose an exponential backoff retry mechanism with local event queue buffering."
+      },
+      {
+        "id": "t1-019",
+        "speaker": "David Kim",
+        "startSec": 357,
+        "endSec": 375,
+        "text": "If local storage buffers un-sent highlights, the user won't even notice a temporary network loss."
+      },
+      {
+        "id": "t1-020",
+        "speaker": "Elena Rostova",
+        "startSec": 377,
+        "endSec": 395,
+        "text": "We can display a subtle inline status chip saying 'Syncing locally...' during reconnects."
+      },
+      {
+        "id": "t1-021",
+        "speaker": "James Wilson",
+        "startSec": 397,
+        "endSec": 415,
+        "text": "That reduces support tickets significantly during ISP hiccups."
+      },
+      {
+        "id": "t1-022",
+        "speaker": "Maya Patel",
+        "startSec": 417,
+        "endSec": 435,
+        "text": "QA can simulate network throttling in Playwright to verify packet retransmission."
+      },
+      {
+        "id": "t1-023",
+        "speaker": "Rachel Adams",
+        "startSec": 437,
+        "endSec": 455,
+        "text": "Let's make sure the reconnect timeout is set to 30 seconds before declaring a disconnected state."
+      },
+      {
+        "id": "t1-024",
+        "speaker": "Sarah Jenkins",
+        "startSec": 457,
+        "endSec": 475,
+        "text": "Agreed. Now let's dive into Chapter 2: System Architecture & Bottlenecks."
+      },
+      {
+        "id": "t1-025",
+        "speaker": "Alex Rivera",
+        "startSec": 485,
+        "endSec": 505,
+        "text": "Thanks Sarah. Looking at telemetry from last week, we processed 14,000 active audio channels."
+      },
+      {
+        "id": "t1-026",
+        "speaker": "Alex Rivera",
+        "startSec": 507,
+        "endSec": 525,
+        "text": "The primary bottleneck was worker pod starvation in our central ingestion service during 8+ participant rooms."
+      },
+      {
+        "id": "t1-027",
+        "speaker": "Marcus Chen",
+        "startSec": 527,
+        "endSec": 545,
+        "text": "Maintaining synchronous WebSocket connections on a single monolith instance caused memory to balloon."
+      },
+      {
+        "id": "t1-028",
+        "speaker": "James Wilson",
+        "startSec": 547,
+        "endSec": 565,
+        "text": "Node CPU utilization hit 92% twice last Tuesday. Headroom was razor thin."
+      },
+      {
+        "id": "t1-029",
+        "speaker": "Maya Patel",
+        "startSec": 567,
+        "endSec": 585,
+        "text": "We saw packet drops in 3% of incoming WebRTC streams, which led to dropped words in transcripts."
+      },
+      {
+        "id": "t1-030",
+        "speaker": "Rachel Adams",
+        "startSec": 587,
+        "endSec": 605,
+        "text": "That feedback came up in two enterprise customer syncs last week. Accuracy is paramount."
+      },
+      {
+        "id": "t1-031",
+        "speaker": "Sarah Jenkins",
+        "startSec": 607,
+        "endSec": 625,
+        "text": "What is our proposed fix for packet loss and stream fragmentation?"
+      },
+      {
+        "id": "t1-032",
+        "speaker": "Alex Rivera",
+        "startSec": 627,
+        "endSec": 645,
+        "text": "We're decoupling the WebRTC media receiver from speech-to-text inference using an event-driven Redis pub/sub buffer."
+      },
+      {
+        "id": "t1-033",
+        "speaker": "Marcus Chen",
+        "startSec": 647,
+        "endSec": 665,
+        "text": "This lets us buffer audio chunks locally in memory for up to 12 seconds without losing sync if a pod recycles."
+      },
+      {
+        "id": "t1-034",
+        "speaker": "David Kim",
+        "startSec": 667,
+        "endSec": 685,
+        "text": "How does that impact client WebSocket frame rates? Will the frontend receive chunks in smaller bursts?"
+      },
+      {
+        "id": "t1-035",
+        "speaker": "Alex Rivera",
+        "startSec": 687,
+        "endSec": 705,
+        "text": "Instead of sending 5-second audio blocks, we'll stream 250ms token deltas. Transcripts will render word-by-word."
+      },
+      {
+        "id": "t1-036",
+        "speaker": "Elena Rostova",
+        "startSec": 707,
+        "endSec": 725,
+        "text": "That's fantastic for user experience! It will feel like watching live closed captions on TV."
+      },
+      {
+        "id": "t1-037",
+        "speaker": "Maya Patel",
+        "startSec": 727,
+        "endSec": 745,
+        "text": "Will word confidence scores be attached to each token delta or calculated at sentence end?"
+      },
+      {
+        "id": "t1-038",
+        "speaker": "Alex Rivera",
+        "startSec": 747,
+        "endSec": 765,
+        "text": "Token deltas carry lightweight confidence weights. Sentence boundaries trigger full recalibration."
+      },
+      {
+        "id": "t1-039",
+        "speaker": "James Wilson",
+        "startSec": 767,
+        "endSec": 785,
+        "text": "From an infrastructure standpoint, the Redis pub/sub layer adds minimal latency\u2014under 4ms overhead."
+      },
+      {
+        "id": "t1-040",
+        "speaker": "Sarah Jenkins",
+        "startSec": 787,
+        "endSec": 805,
+        "text": "Sounds like a solid foundation. Marcus, how are we scaling memory allocations across regional clusters?"
+      },
+      {
+        "id": "t1-041",
+        "speaker": "Marcus Chen",
+        "startSec": 807,
+        "endSec": 825,
+        "text": "We are configuring cgroups limits so pod auto-scaling triggers at 70% memory threshold instead of 85%."
+      },
+      {
+        "id": "t1-042",
+        "speaker": "James Wilson",
+        "startSec": 827,
+        "endSec": 845,
+        "text": "That gives us a 90-second buffer for new Kubernetes pods to spin up and pass health checks."
+      },
+      {
+        "id": "t1-043",
+        "speaker": "David Kim",
+        "startSec": 847,
+        "endSec": 865,
+        "text": "Will client connections auto-migrate seamlessly if a regional cluster degrades?"
+      },
+      {
+        "id": "t1-044",
+        "speaker": "Alex Rivera",
+        "startSec": 867,
+        "endSec": 885,
+        "text": "Yes, AWS Global Accelerator will route client traffic to the nearest healthy edge node within 5 seconds."
+      },
+      {
+        "id": "t1-045",
+        "speaker": "Rachel Adams",
+        "startSec": 887,
+        "endSec": 905,
+        "text": "This high-availability setup will be a major selling point for our Enterprise sales team."
+      },
+      {
+        "id": "t1-046",
+        "speaker": "Elena Rostova",
+        "startSec": 907,
+        "endSec": 925,
+        "text": "We should add a connection health indicator icon in the top navigation bar of the app."
+      },
+      {
+        "id": "t1-047",
+        "speaker": "Maya Patel",
+        "startSec": 927,
+        "endSec": 945,
+        "text": "QA will log chaos engineering test scenarios to validate edge node failovers under heavy load."
+      },
+      {
+        "id": "t1-048",
+        "speaker": "Sarah Jenkins",
+        "startSec": 947,
+        "endSec": 965,
+        "text": "Excellent plan. Now let's move to Chapter 3: AI Agent & Prompt Engineering."
+      },
+      {
+        "id": "t1-049",
+        "speaker": "Rachel Adams",
+        "startSec": 1055,
+        "endSec": 1075,
+        "text": "For the AI summarization pipeline, we are expanding beyond generic summaries into domain-tailored templates."
+      },
+      {
+        "id": "t1-050",
+        "speaker": "Rachel Adams",
+        "startSec": 1077,
+        "endSec": 1095,
+        "text": "We now have specialized prompt templates for Sales Demos, 1:1 Manager Syncs, and Engineering Standups."
+      },
+      {
+        "id": "t1-051",
+        "speaker": "Elena Rostova",
+        "startSec": 1097,
+        "endSec": 1115,
+        "text": "Each template highlights different metrics. For Sales, it extracts objections and next steps. For Standups, blockers."
+      },
+      {
+        "id": "t1-052",
+        "speaker": "Marcus Chen",
+        "startSec": 1117,
+        "endSec": 1135,
+        "text": "Under the hood, we are orchestrating these summaries asynchronously using background queue workers."
+      },
+      {
+        "id": "t1-053",
+        "speaker": "David Kim",
+        "startSec": 1137,
+        "endSec": 1155,
+        "text": "Can the user customize prompt parameters on the fly, or are templates pre-compiled?"
+      },
+      {
+        "id": "t1-054",
+        "speaker": "Rachel Adams",
+        "startSec": 1157,
+        "endSec": 1175,
+        "text": "Users will have preset defaults, but enterprise admins can inject custom instructions into prompt payloads."
+      },
+      {
+        "id": "t1-055",
+        "speaker": "Alex Rivera",
+        "startSec": 1177,
+        "endSec": 1195,
+        "text": "We've benchmarked inference runtime: GPT-4o mini handles chapter generation in under 1.8 seconds per meeting."
+      },
+      {
+        "id": "t1-056",
+        "speaker": "Maya Patel",
+        "startSec": 1197,
+        "endSec": 1215,
+        "text": "Have we tested summary accuracy when speakers talk over each other during debate segments?"
+      },
+      {
+        "id": "t1-057",
+        "speaker": "Marcus Chen",
+        "startSec": 1217,
+        "endSec": 1235,
+        "text": "Speaker diarization cleans up overlapping speech before passing formatted context to the LLM."
+      },
+      {
+        "id": "t1-058",
+        "speaker": "Sarah Jenkins",
+        "startSec": 1237,
+        "endSec": 1255,
+        "text": "What happens if a meeting runs over 60 minutes, like this one? How do we handle token window limits?"
+      },
+      {
+        "id": "t1-059",
+        "speaker": "Alex Rivera",
+        "startSec": 1257,
+        "endSec": 1275,
+        "text": "We chunk the transcript by chapters. Each chapter gets summarized independently, then a meta-summary combines them."
+      },
+      {
+        "id": "t1-060",
+        "speaker": "David Kim",
+        "startSec": 1277,
+        "endSec": 1295,
+        "text": "That map-reduce approach works really cleanly on frontend UI too. We can render chapter cards progressively."
+      },
+      {
+        "id": "t1-061",
+        "speaker": "Elena Rostova",
+        "startSec": 1297,
+        "endSec": 1315,
+        "text": "Users can click on any chapter card to jump straight to that timestamp in transcript and video player."
+      },
+      {
+        "id": "t1-062",
+        "speaker": "James Wilson",
+        "startSec": 1317,
+        "endSec": 1335,
+        "text": "We should cache generated summary JSON blobs on CDN edge nodes to speed up initial page views."
+      },
+      {
+        "id": "t1-063",
+        "speaker": "Rachel Adams",
+        "startSec": 1337,
+        "endSec": 1355,
+        "text": "Agreed. CDN caching will make shared meeting links load instantly for guest view participants."
+      },
+      {
+        "id": "t1-064",
+        "speaker": "Sarah Jenkins",
+        "startSec": 1357,
+        "endSec": 1375,
+        "text": "Let's make sure guest views respect organization permission boundaries and security policies."
+      },
+      {
+        "id": "t1-065",
+        "speaker": "Maya Patel",
+        "startSec": 1377,
+        "endSec": 1395,
+        "text": "Security team requested tokenized access links with configurable expiration times for external shares."
+      },
+      {
+        "id": "t1-066",
+        "speaker": "Marcus Chen",
+        "startSec": 1397,
+        "endSec": 1415,
+        "text": "We can generate signed URLs for meeting assets valid for 24 hours by default."
+      },
+      {
+        "id": "t1-067",
+        "speaker": "Alex Rivera",
+        "startSec": 1417,
+        "endSec": 1435,
+        "text": "That handles security cleanly without adding friction for authenticated workspace members."
+      },
+      {
+        "id": "t1-068",
+        "speaker": "David Kim",
+        "startSec": 1437,
+        "endSec": 1455,
+        "text": "Can guests make highlights or are they read-only?"
+      },
+      {
+        "id": "t1-069",
+        "speaker": "Rachel Adams",
+        "startSec": 1457,
+        "endSec": 1475,
+        "text": "Guests can view highlights but need an account to create persistent highlights."
+      },
+      {
+        "id": "t1-070",
+        "speaker": "Elena Rostova",
+        "startSec": 1477,
+        "endSec": 1495,
+        "text": "We'll show a friendly signup CTA modal if a guest clicks the highlight button."
+      },
+      {
+        "id": "t1-071",
+        "speaker": "James Wilson",
+        "startSec": 1497,
+        "endSec": 1515,
+        "text": "Signed URLs will also reduce bot scraping on publicly shared transcripts."
+      },
+      {
+        "id": "t1-072",
+        "speaker": "Maya Patel",
+        "startSec": 1517,
+        "endSec": 1535,
+        "text": "We'll include rate-limiting test cases for signed URL generation."
+      },
+      {
+        "id": "t1-073",
+        "speaker": "Sarah Jenkins",
+        "startSec": 1537,
+        "endSec": 1555,
+        "text": "Great addition. Let's discuss action item extraction accuracy."
+      },
+      {
+        "id": "t1-074",
+        "speaker": "Rachel Adams",
+        "startSec": 1557,
+        "endSec": 1575,
+        "text": "Action items are parsed with assignee tags and due dates extracted automatically."
+      },
+      {
+        "id": "t1-075",
+        "speaker": "Marcus Chen",
+        "startSec": 1577,
+        "endSec": 1595,
+        "text": "We format them as structured JSON so integrations like Jira or Linear can ingest them directly."
+      },
+      {
+        "id": "t1-076",
+        "speaker": "David Kim",
+        "startSec": 1597,
+        "endSec": 1615,
+        "text": "On the UI, action items render as checkable task lists that sync state to localStorage."
+      },
+      {
+        "id": "t1-077",
+        "speaker": "Elena Rostova",
+        "startSec": 1617,
+        "endSec": 1635,
+        "text": "Users can click a checkmark to mark an action item as completed right inside Fathom."
+      },
+      {
+        "id": "t1-078",
+        "speaker": "Alex Rivera",
+        "startSec": 1637,
+        "endSec": 1655,
+        "text": "That turns Fathom from a passive recorder into an active workflow productivity tool."
+      },
+      {
+        "id": "t1-079",
+        "speaker": "Sarah Jenkins",
+        "startSec": 1657,
+        "endSec": 1675,
+        "text": "I love that positioning. Now let's move to Chapter 4: Frontend UX Specs."
+      },
+      {
+        "id": "t1-080",
+        "speaker": "Elena Rostova",
+        "startSec": 1805,
+        "endSec": 1825,
+        "text": "Let me share my screen to show updated design mockups for the Fathom meeting player interface."
+      },
+      {
+        "id": "t1-081",
+        "speaker": "Elena Rostova",
+        "startSec": 1827,
+        "endSec": 1845,
+        "text": "Notice the split-screen view: transcript on the left, synchronized summary & highlights panel on the right."
+      },
+      {
+        "id": "t1-082",
+        "speaker": "David Kim",
+        "startSec": 1847,
+        "endSec": 1865,
+        "text": "The visual hierarchy is super clean. Hover states on transcript lines highlight corresponding scrubber timestamps."
+      },
+      {
+        "id": "t1-083",
+        "speaker": "Elena Rostova",
+        "startSec": 1867,
+        "endSec": 1885,
+        "text": "We also added keyboard shortcuts: pressing 'H' creates an instant highlight at the current playback timestamp."
+      },
+      {
+        "id": "t1-084",
+        "speaker": "Rachel Adams",
+        "startSec": 1887,
+        "endSec": 1905,
+        "text": "Keyboard shortcuts are huge for power users who want to take quick notes during live meetings."
+      },
+      {
+        "id": "t1-085",
+        "speaker": "David Kim",
+        "startSec": 1907,
+        "endSec": 1925,
+        "text": "When pressing 'H', we immediately append the highlight object to localStorage so it feels instantaneous."
+      },
+      {
+        "id": "t1-086",
+        "speaker": "Marcus Chen",
+        "startSec": 1927,
+        "endSec": 1945,
+        "text": "And background sync pushes local highlights to the server when network connectivity is stable."
+      },
+      {
+        "id": "t1-087",
+        "speaker": "Sarah Jenkins",
+        "startSec": 1947,
+        "endSec": 1965,
+        "text": "What happens if two participants add a highlight at the exact same second?"
+      },
+      {
+        "id": "t1-088",
+        "speaker": "David Kim",
+        "startSec": 1967,
+        "endSec": 1985,
+        "text": "We deduplicate highlights based on user ID and timestamp thresholds within a 2-second window."
+      },
+      {
+        "id": "t1-089",
+        "speaker": "Elena Rostova",
+        "startSec": 1987,
+        "endSec": 2005,
+        "text": "We've also designed color-coded highlight tags: Red for Action Item, Yellow for Key Insight, Green for Sales Win."
+      },
+      {
+        "id": "t1-090",
+        "speaker": "Maya Patel",
+        "startSec": 2007,
+        "endSec": 2025,
+        "text": "Can users filter transcript lines by highlight tag color? That would be great for QA audit trails."
+      },
+      {
+        "id": "t1-091",
+        "speaker": "Elena Rostova",
+        "startSec": 2027,
+        "endSec": 2045,
+        "text": "Yes! The filter tab at top of transcript allows filtering by tag type or participant name."
+      },
+      {
+        "id": "t1-092",
+        "speaker": "James Wilson",
+        "startSec": 2047,
+        "endSec": 2065,
+        "text": "Rendering 500+ transcript items in DOM can get heavy. Are we using virtualized lists?"
+      },
+      {
+        "id": "t1-093",
+        "speaker": "David Kim",
+        "startSec": 2067,
+        "endSec": 2085,
+        "text": "Yes, we're using virtual list scrolling so only visible transcript lines are present in the DOM tree."
+      },
+      {
+        "id": "t1-094",
+        "speaker": "Alex Rivera",
+        "startSec": 2087,
+        "endSec": 2105,
+        "text": "That keeps memory footprint under 45MB even for long 2-hour executive syncs."
+      },
+      {
+        "id": "t1-095",
+        "speaker": "Rachel Adams",
+        "startSec": 2107,
+        "endSec": 2125,
+        "text": "Can we test this with seed data across mobile web viewports as well?"
+      },
+      {
+        "id": "t1-096",
+        "speaker": "Elena Rostova",
+        "startSec": 2127,
+        "endSec": 2145,
+        "text": "The mobile layout stacks video player on top and switches between Transcript and Summary tabs smoothly."
+      },
+      {
+        "id": "t1-097",
+        "speaker": "Sarah Jenkins",
+        "startSec": 2147,
+        "endSec": 2165,
+        "text": "What typography and font family are we using for high readability?"
+      },
+      {
+        "id": "t1-098",
+        "speaker": "Elena Rostova",
+        "startSec": 2167,
+        "endSec": 2185,
+        "text": "We chose Inter and Outfit from Google Fonts with crisp line height and high contrast dark modes."
+      },
+      {
+        "id": "t1-099",
+        "speaker": "David Kim",
+        "startSec": 2187,
+        "endSec": 2205,
+        "text": "Tailwind CSS typography plugin makes styling long summary markdown effortless."
+      },
+      {
+        "id": "t1-100",
+        "speaker": "Marcus Chen",
+        "startSec": 2207,
+        "endSec": 2225,
+        "text": "We should ensure copy-to-clipboard buttons for summary snippets work natively across all browsers."
+      },
+      {
+        "id": "t1-101",
+        "speaker": "Maya Patel",
+        "startSec": 2227,
+        "endSec": 2245,
+        "text": "I'll test clipboard API permissions on Safari iOS and Chrome Desktop."
+      },
+      {
+        "id": "t1-102",
+        "speaker": "James Wilson",
+        "startSec": 2247,
+        "endSec": 2265,
+        "text": "Also verify audio waveform visualizer animations don't trigger high CPU usage on low-end laptops."
+      },
+      {
+        "id": "t1-103",
+        "speaker": "David Kim",
+        "startSec": 2267,
+        "endSec": 2285,
+        "text": "Waveforms use hardware-accelerated Canvas 2D render loops capped at 30 FPS."
+      },
+      {
+        "id": "t1-104",
+        "speaker": "Alex Rivera",
+        "startSec": 2287,
+        "endSec": 2305,
+        "text": "That preserves battery life for users attending back-to-back video calls on laptops."
+      },
+      {
+        "id": "t1-105",
+        "speaker": "Sarah Jenkins",
+        "startSec": 2307,
+        "endSec": 2325,
+        "text": "Thoughtful UX detail Alex. Now let's jump into Chapter 5: Infrastructure & Costs."
+      },
+      {
+        "id": "t1-106",
+        "speaker": "James Wilson",
+        "startSec": 2405,
+        "endSec": 2425,
+        "text": "Let's review infrastructure projections for Q4. GPU instances for Whisper AI model inference are our largest expense."
+      },
+      {
+        "id": "t1-107",
+        "speaker": "James Wilson",
+        "startSec": 2427,
+        "endSec": 2445,
+        "text": "By switching to TensorRT-optimized fp16 models on NVIDIA T4 instances, we cut GPU costs by 38% per audio hour."
+      },
+      {
+        "id": "t1-108",
+        "speaker": "Alex Rivera",
+        "startSec": 2447,
+        "endSec": 2465,
+        "text": "That is a huge saving. Plus, TensorRT batch inference increases throughput from 12 streams per GPU to 28 streams."
+      },
+      {
+        "id": "t1-109",
+        "speaker": "Marcus Chen",
+        "startSec": 2467,
+        "endSec": 2485,
+        "text": "We've also implemented silence suppression on client mic feeds so muted participants don't consume inference cycles."
+      },
+      {
+        "id": "t1-110",
+        "speaker": "Sarah Jenkins",
+        "startSec": 2487,
+        "endSec": 2505,
+        "text": "What is our overall estimated monthly infrastructure budget with these optimizations?"
+      },
+      {
+        "id": "t1-111",
+        "speaker": "James Wilson",
+        "startSec": 2507,
+        "endSec": 2525,
+        "text": "We project staying under $18,000/month while serving up to 50,000 active monthly meetings."
+      },
+      {
+        "id": "t1-112",
+        "speaker": "Rachel Adams",
+        "startSec": 2527,
+        "endSec": 2545,
+        "text": "That fits comfortably inside our gross margin targets for the enterprise tier."
+      },
+      {
+        "id": "t1-113",
+        "speaker": "Maya Patel",
+        "startSec": 2547,
+        "endSec": 2565,
+        "text": "Have we tested cluster failover if an AWS region experiences a transient outage?"
+      },
+      {
+        "id": "t1-114",
+        "speaker": "James Wilson",
+        "startSec": 2567,
+        "endSec": 2585,
+        "text": "We have secondary fallback routing to US-East-2 with automated DNS failover taking under 15 seconds."
+      },
+      {
+        "id": "t1-115",
+        "speaker": "David Kim",
+        "startSec": 2587,
+        "endSec": 2605,
+        "text": "On frontend side, CDN asset delivery is configured with stale-while-revalidate headers for instant cached loads."
+      },
+      {
+        "id": "t1-116",
+        "speaker": "Alex Rivera",
+        "startSec": 2607,
+        "endSec": 2625,
+        "text": "Latency benchmarks across 100 test runs showed 95th percentile transcription latency of 240ms. Target achieved!"
+      },
+      {
+        "id": "t1-117",
+        "speaker": "Sarah Jenkins",
+        "startSec": 2627,
+        "endSec": 2645,
+        "text": "Tremendous milestone Alex. Congratulations to the core architecture team."
+      },
+      {
+        "id": "t1-118",
+        "speaker": "Marcus Chen",
+        "startSec": 2647,
+        "endSec": 2665,
+        "text": "Thanks Sarah. It was a true cross-functional engineering effort."
+      },
+      {
+        "id": "t1-119",
+        "speaker": "James Wilson",
+        "startSec": 2667,
+        "endSec": 2685,
+        "text": "We also set up cloud cost monitoring alerts in Slack if daily spend strays by more than 10%."
+      },
+      {
+        "id": "t1-120",
+        "speaker": "Rachel Adams",
+        "startSec": 2687,
+        "endSec": 2705,
+        "text": "Financial transparency helps us make quick product trade-offs during sprint cycles."
+      },
+      {
+        "id": "t1-121",
+        "speaker": "Elena Rostova",
+        "startSec": 2707,
+        "endSec": 2725,
+        "text": "Are video thumbnails stored on S3 with WebP compression?"
+      },
+      {
+        "id": "t1-122",
+        "speaker": "David Kim",
+        "startSec": 2727,
+        "endSec": 2745,
+        "text": "Yes, WebP thumbnails average only 18KB each, loading in milliseconds."
+      },
+      {
+        "id": "t1-123",
+        "speaker": "Maya Patel",
+        "startSec": 2747,
+        "endSec": 2765,
+        "text": "QA verified video player buffering works smoothly on 4G cellular connections."
+      },
+      {
+        "id": "t1-124",
+        "speaker": "Alex Rivera",
+        "startSec": 2767,
+        "endSec": 2785,
+        "text": "Adaptive HLS streaming dynamically steps down video resolution if bandwidth drops."
+      },
+      {
+        "id": "t1-125",
+        "speaker": "Sarah Jenkins",
+        "startSec": 2787,
+        "endSec": 2805,
+        "text": "Excellent resilience engineering. Let's move to Chapter 6: Action Items & Next Steps."
+      },
+      {
+        "id": "t1-126",
+        "speaker": "Sarah Jenkins",
+        "startSec": 3005,
+        "endSec": 3025,
+        "text": "Let's wrap up by assigning clear action items and agreeing on sprint milestones for next 6 weeks."
+      },
+      {
+        "id": "t1-127",
+        "speaker": "Rachel Adams",
+        "startSec": 3027,
+        "endSec": 3045,
+        "text": "Sprint 1 starts Monday: focus on API data models, seed data verification, and localStorage highlight hook scaffolding."
+      },
+      {
+        "id": "t1-128",
+        "speaker": "David Kim",
+        "startSec": 3047,
+        "endSec": 3065,
+        "text": "I'll take ownership of building responsive Next.js layout, header navigation, and theme system."
+      },
+      {
+        "id": "t1-129",
+        "speaker": "Elena Rostova",
+        "startSec": 3067,
+        "endSec": 3085,
+        "text": "I'll provide full Figma asset exports for meeting control icons, tag badges, and custom participant avatars."
+      },
+      {
+        "id": "t1-130",
+        "speaker": "Marcus Chen",
+        "startSec": 3087,
+        "endSec": 3105,
+        "text": "I'll finalize JSON seed schema and write local mock service worker for faked bot audio playback."
+      },
+      {
+        "id": "t1-131",
+        "speaker": "Alex Rivera",
+        "startSec": 3107,
+        "endSec": 3125,
+        "text": "I'll publish technical RFC for tokenized WebSocket streaming protocol by end of day Friday."
+      },
+      {
+        "id": "t1-132",
+        "speaker": "James Wilson",
+        "startSec": 3127,
+        "endSec": 3145,
+        "text": "DevOps will set up preview deployment pipelines on Vercel with automatic pull request builds."
+      },
+      {
+        "id": "t1-133",
+        "speaker": "Maya Patel",
+        "startSec": 3147,
+        "endSec": 3165,
+        "text": "QA will draft automated Playwright test scripts covering meeting search, filtering, and local highlight persistence."
+      },
+      {
+        "id": "t1-134",
+        "speaker": "Sarah Jenkins",
+        "startSec": 3167,
+        "endSec": 3185,
+        "text": "Can we ensure our seed datasets include realistic meetings across various lengths and templates?"
+      },
+      {
+        "id": "t1-135",
+        "speaker": "Rachel Adams",
+        "startSec": 3187,
+        "endSec": 3205,
+        "text": "Yes, we'll seed 10 distinct meetings: from quick 15-minute standups to this 60-minute multi-participant kickoff."
+      },
+      {
+        "id": "t1-136",
+        "speaker": "Maya Patel",
+        "startSec": 3207,
+        "endSec": 3225,
+        "text": "We'll also test edge cases like long transcripts with over 150 speech lines to verify virtual list performance."
+      },
+      {
+        "id": "t1-137",
+        "speaker": "David Kim",
+        "startSec": 3227,
+        "endSec": 3245,
+        "text": "Sounds great! The UI will render thousands of lines smoothly without any layout lag."
+      },
+      {
+        "id": "t1-138",
+        "speaker": "Elena Rostova",
+        "startSec": 3247,
+        "endSec": 3265,
+        "text": "Really excited to see complete application come together over coming sprints."
+      },
+      {
+        "id": "t1-139",
+        "speaker": "Sarah Jenkins",
+        "startSec": 3267,
+        "endSec": 3285,
+        "text": "Marcus, can you verify seed meeting data contains rich summaries across all template types?"
+      },
+      {
+        "id": "t1-140",
+        "speaker": "Marcus Chen",
+        "startSec": 3287,
+        "endSec": 3305,
+        "text": "Yes, each seed meeting contains General, Sales, 1:1, Standup, and Action Items sections."
+      },
+      {
+        "id": "t1-141",
+        "speaker": "Rachel Adams",
+        "startSec": 3307,
+        "endSec": 3325,
+        "text": "And we've added realistic avatars, roles, and timestamps to make the demo feel totally alive."
+      },
+      {
+        "id": "t1-142",
+        "speaker": "James Wilson",
+        "startSec": 3327,
+        "endSec": 3345,
+        "text": "Vercel deployment setup will allow instant previews for every git commit."
+      },
+      {
+        "id": "t1-143",
+        "speaker": "Maya Patel",
+        "startSec": 3347,
+        "endSec": 3365,
+        "text": "I'll perform full cross-browser testing on Chrome, Safari, and Firefox before tagging production v1.0."
+      },
+      {
+        "id": "t1-144",
+        "speaker": "David Kim",
+        "startSec": 3367,
+        "endSec": 3385,
+        "text": "I'll also ensure mobile responsive navigation works cleanly on mobile Safari."
+      },
+      {
+        "id": "t1-145",
+        "speaker": "Alex Rivera",
+        "startSec": 3387,
+        "endSec": 3405,
+        "text": "Architecture docs will be updated in project wiki for future onboardings."
+      },
+      {
+        "id": "t1-146",
+        "speaker": "Sarah Jenkins",
+        "startSec": 3407,
+        "endSec": 3425,
+        "text": "Does anyone have any final questions before we adjourn?"
+      },
+      {
+        "id": "t1-147",
+        "speaker": "Elena Rostova",
+        "startSec": 3427,
+        "endSec": 3445,
+        "text": "All clear on design specs!"
+      },
+      {
+        "id": "t1-148",
+        "speaker": "Marcus Chen",
+        "startSec": 3447,
+        "endSec": 3465,
+        "text": "Backend ready for Sprint 1!"
+      },
+      {
+        "id": "t1-149",
+        "speaker": "James Wilson",
+        "startSec": 3467,
+        "endSec": 3485,
+        "text": "DevOps ready for Vercel deploy!"
+      },
+      {
+        "id": "t1-150",
+        "speaker": "Maya Patel",
+        "startSec": 3487,
+        "endSec": 3505,
+        "text": "QA ready with test suites!"
+      },
+      {
+        "id": "t1-151",
+        "speaker": "Sarah Jenkins",
+        "startSec": 3507,
+        "endSec": 3540,
+        "text": "Thank you everyone for great discussion and crisp execution plan. Let's crush Q4!"
+      },
+      {
+        "id": "t1-152",
+        "speaker": "Rachel Adams",
+        "startSec": 3543,
+        "endSec": 3570,
+        "text": "Thanks all, see you in sprint planning!"
+      },
+      {
+        "id": "t1-153",
+        "speaker": "Alex Rivera",
+        "startSec": 3573,
+        "endSec": 3595,
+        "text": "Bye everyone, great meeting!"
+      }
+    ]
+  },
+  {
+    "id": "m-002",
+    "title": "Enterprise Sales Demo - Acme Corp Renewal & Tier Expansion",
+    "date": "2026-09-24T16:30:00.000Z",
+    "durationSec": 1800,
+    "meetingType": "Sales",
+    "participants": [
+      {
+        "id": "p-s1",
+        "name": "Jessica Vance",
+        "email": "jessica.vance@fathom.ai",
+        "role": "Account Executive",
+        "avatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150"
+      },
+      {
+        "id": "p-s2",
+        "name": "Michael Thorne",
+        "email": "m.thorne@acmecorp.com",
+        "role": "VP of Sales Operations",
+        "avatar": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150"
+      },
+      {
+        "id": "p-s3",
+        "name": "Samantha Wu",
+        "email": "s.wu@acmecorp.com",
+        "role": "Director of IT",
+        "avatar": "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150"
+      },
+      {
+        "id": "p-s4",
+        "name": "Tom Brady",
+        "email": "tom.brady@fathom.ai",
+        "role": "Solutions Engineer",
+        "avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150"
+      }
+    ],
+    "chapters": [
+      {
+        "id": "c2-1",
+        "title": "Acme Corp Q3 Usage Overview",
+        "startSec": 0,
+        "endSec": 450
+      },
+      {
+        "id": "c2-2",
+        "title": "Fathom Enterprise Security & SOC2 Review",
+        "startSec": 450,
+        "endSec": 1100
+      },
+      {
+        "id": "c2-3",
+        "title": "Pricing & Expansion Terms",
+        "startSec": 1100,
+        "endSec": 1800
+      }
+    ],
+    "summaries": {
+      "general": "Jessica Vance led the renewal discussion with Acme Corp leadership. Michael Thorne praised Fathom's automated CRM integration, noting a 25% decrease in rep administrative overhead. Samantha Wu reviewed SOC2 compliance and SSO integration requirements.",
+      "sales": "Deal Opportunity: Acme Corp expanding from 120 seats to 450 enterprise seats ($162k ARR). Security approval granted by Samantha pending Okta SAML SSO test run next Tuesday.",
+      "oneOnOne": "Jessica and Michael reviewed account adoption benchmarks across Acme's East Coast sales reps.",
+      "standup": "Tom Brady to assist Samantha's IT team with Okta SAML XML metadata upload on Thursday.",
+      "actionItems": [
+        "Jessica Vance: Send revised 450-seat Enterprise Agreement proposal with annual billing discount.",
+        "Tom Brady: Provide SAML SSO setup documentation to Samantha Wu.",
+        "Michael Thorne: Schedule procurement team sign-off meeting for next Monday."
+      ]
+    },
+    "transcript": [
+      {
+        "id": "t2-001",
+        "speaker": "Jessica Vance",
+        "startSec": 10,
+        "endSec": 35,
+        "text": "Thanks Michael and Samantha for jumping on today. We're excited to discuss Acme's Q3 results with Fathom."
+      },
+      {
+        "id": "t2-002",
+        "speaker": "Michael Thorne",
+        "startSec": 38,
+        "endSec": 75,
+        "text": "Honestly Jessica, our sales team has loved using Fathom. Reps are saving almost 5 hours a week on Salesforce updates."
+      },
+      {
+        "id": "t2-003",
+        "speaker": "Samantha Wu",
+        "startSec": 78,
+        "endSec": 110,
+        "text": "From an IT perspective, we need to ensure our full roll-out of 450 seats complies with our new SOC2 Type II guidelines."
+      },
+      {
+        "id": "t2-004",
+        "speaker": "Tom Brady",
+        "startSec": 113,
+        "endSec": 150,
+        "text": "Absolutely Samantha. Fathom is fully SOC2 Type II certified, and all audio data is encrypted at rest using AES-256."
+      },
+      {
+        "id": "t2-005",
+        "speaker": "Samantha Wu",
+        "startSec": 153,
+        "endSec": 185,
+        "text": "That's great. Does your Enterprise tier support custom SAML 2.0 SSO via Okta?"
+      },
+      {
+        "id": "t2-006",
+        "speaker": "Tom Brady",
+        "startSec": 188,
+        "endSec": 220,
+        "text": "Yes, we support Okta, Azure AD, and PingIdentity out of the box with automated SCIM user provisioning."
+      },
+      {
+        "id": "t2-007",
+        "speaker": "Jessica Vance",
+        "startSec": 223,
+        "endSec": 260,
+        "text": "If we lock in the 450 seats before quarter end, we can offer a 15% multi-year discount across the account."
+      },
+      {
+        "id": "t2-008",
+        "speaker": "Michael Thorne",
+        "startSec": 263,
+        "endSec": 295,
+        "text": "Send over that proposal Jessica. If procurement approves, we can sign by Friday."
+      }
+    ]
+  },
+  {
+    "id": "m-003",
+    "title": "Weekly Engineering Standup & Blocker Sync",
+    "date": "2026-09-23T09:00:00.000Z",
+    "durationSec": 900,
+    "meetingType": "Standup",
+    "participants": [
+      {
+        "id": "p1",
+        "name": "Sarah Jenkins",
+        "email": "sarah.jenkins@fathom.ai",
+        "role": "VP of Product",
+        "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150"
+      },
+      {
+        "id": "p3",
+        "name": "Marcus Chen",
+        "email": "marcus.chen@fathom.ai",
+        "role": "Tech Lead",
+        "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150"
+      },
+      {
+        "id": "p5",
+        "name": "David Kim",
+        "email": "david.kim@fathom.ai",
+        "role": "Senior Frontend Dev",
+        "avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150"
+      },
+      {
+        "id": "p7",
+        "name": "James Wilson",
+        "email": "james.wilson@fathom.ai",
+        "role": "DevOps Lead",
+        "avatar": "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150"
+      },
+      {
+        "id": "p8",
+        "name": "Maya Patel",
+        "email": "maya.patel@fathom.ai",
+        "role": "QA Lead",
+        "avatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150"
+      }
+    ],
+    "chapters": [
+      {
+        "id": "c3-1",
+        "title": "Yesterday Accomplishments & Daily Goals",
+        "startSec": 0,
+        "endSec": 450
+      },
+      {
+        "id": "c3-2",
+        "title": "Blockers & CI/CD Pipeline Fix",
+        "startSec": 450,
+        "endSec": 900
+      }
+    ],
+    "summaries": {
+      "general": "15-minute engineering standup. David completed the local storage highlight persistence module. Marcus debugged database query indices. James resolved GitHub Actions runner timeouts.",
+      "sales": "No direct sales topics discussed.",
+      "oneOnOne": "Marcus aligned with David on local storage fallback testing.",
+      "standup": "Blockers: CI/CD runner timeouts fixed by upgrading runner specs. Goal for today: complete Next.js 15 App Router page layout.",
+      "actionItems": [
+        "David Kim: Submit PR for localStorage highlight hook.",
+        "James Wilson: Monitor staging CI build speeds."
+      ]
+    },
+    "transcript": [
+      {
+        "id": "t3-001",
+        "speaker": "Marcus Chen",
+        "startSec": 5,
+        "endSec": 25,
+        "text": "Morning team. Let's do a quick round of updates. David, you want to go first?"
+      },
+      {
+        "id": "t3-002",
+        "speaker": "David Kim",
+        "startSec": 28,
+        "endSec": 60,
+        "text": "Sure! Yesterday I finished the custom hook for localStorage highlight caching. Today I'm wiring up the video timestamp sync."
+      },
+      {
+        "id": "t3-003",
+        "speaker": "Maya Patel",
+        "startSec": 63,
+        "endSec": 90,
+        "text": "Nice! I tested your branch locally David, and highlights persist perfectly after page refresh."
+      },
+      {
+        "id": "t3-004",
+        "speaker": "James Wilson",
+        "startSec": 93,
+        "endSec": 125,
+        "text": "DevOps update: I fixed the flaky CI integration test runners yesterday. Build times dropped from 14 minutes to 4 minutes."
+      }
+    ]
+  },
+  {
+    "id": "m-004",
+    "title": "1:1 Manager Sync - Q3 Performance & Career Growth",
+    "date": "2026-09-22T11:00:00.000Z",
+    "durationSec": 1800,
+    "meetingType": "1:1",
+    "participants": [
+      {
+        "id": "p1",
+        "name": "Sarah Jenkins",
+        "email": "sarah.jenkins@fathom.ai",
+        "role": "VP of Product",
+        "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150"
+      },
+      {
+        "id": "p6",
+        "name": "Rachel Adams",
+        "email": "rachel.adams@fathom.ai",
+        "role": "Product Manager",
+        "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150"
+      }
+    ],
+    "chapters": [
+      {
+        "id": "c4-1",
+        "title": "Q3 Milestone Review & Wins",
+        "startSec": 0,
+        "endSec": 700
+      },
+      {
+        "id": "c4-2",
+        "title": "Q4 Career Growth & Staff PM Track",
+        "startSec": 700,
+        "endSec": 1800
+      }
+    ],
+    "summaries": {
+      "general": "Sarah Jenkins and Rachel Adams held their bi-weekly 1:1 sync. Sarah praised Rachel's product leadership on the smart summary template launch and discussed path toward Staff Product Manager promotion.",
+      "sales": "N/A",
+      "oneOnOne": "Rachel expressed interest in leading cross-functional AI research initiatives. Sarah agreed to sponsor her entry into executive strategy reviews.",
+      "standup": "N/A",
+      "actionItems": [
+        "Sarah Jenkins: Draft Staff PM promotion rubric document.",
+        "Rachel Adams: Outline Q4 AI research roadmap document."
+      ]
+    },
+    "transcript": [
+      {
+        "id": "t4-001",
+        "speaker": "Sarah Jenkins",
+        "startSec": 10,
+        "endSec": 40,
+        "text": "Rachel, I wanted to start by saying fantastic job on driving the AI template release last month. The feedback has been stellar."
+      },
+      {
+        "id": "t4-002",
+        "speaker": "Rachel Adams",
+        "startSec": 43,
+        "endSec": 80,
+        "text": "Thank you Sarah! It was a great team effort. I'm really keen to push further into automated action item extraction in Q4."
+      },
+      {
+        "id": "t4-003",
+        "speaker": "Sarah Jenkins",
+        "startSec": 83,
+        "endSec": 120,
+        "text": "Let's talk about your career trajectory. You've demonstrated senior ownership, and I want to prepare your promotion case for Staff PM."
+      }
+    ]
+  },
+  {
+    "id": "m-005",
+    "title": "Executive Product Roadmap & Q4 Budget Alignment",
+    "date": "2026-09-21T15:00:00.000Z",
+    "durationSec": 2700,
+    "meetingType": "Executive",
+    "participants": [
+      {
+        "id": "p1",
+        "name": "Sarah Jenkins",
+        "email": "sarah.jenkins@fathom.ai",
+        "role": "VP of Product",
+        "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150"
+      },
+      {
+        "id": "p2",
+        "name": "Alex Rivera",
+        "email": "alex.rivera@fathom.ai",
+        "role": "Lead Architect",
+        "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150"
+      },
+      {
+        "id": "p-ex1",
+        "name": "Carlos Gomez",
+        "email": "carlos.gomez@fathom.ai",
+        "role": "Chief Executive Officer",
+        "avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150"
+      },
+      {
+        "id": "p-ex2",
+        "name": "Emily Watson",
+        "email": "emily.watson@fathom.ai",
+        "role": "Chief Financial Officer",
+        "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150"
+      },
+      {
+        "id": "p4",
+        "name": "Elena Rostova",
+        "email": "elena.rostova@fathom.ai",
+        "role": "Design Director",
+        "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
+      },
+      {
+        "id": "p6",
+        "name": "Rachel Adams",
+        "email": "rachel.adams@fathom.ai",
+        "role": "Product Manager",
+        "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150"
+      }
+    ],
+    "chapters": [
+      {
+        "id": "c5-1",
+        "title": "CEO Strategy Vision & Q4 OKRs",
+        "startSec": 0,
+        "endSec": 900
+      },
+      {
+        "id": "c5-2",
+        "title": "CFO Financial Projections & R&D Headcount",
+        "startSec": 900,
+        "endSec": 1800
+      },
+      {
+        "id": "c5-3",
+        "title": "Product Architecture Sign-Off",
+        "startSec": 1800,
+        "endSec": 2700
+      }
+    ],
+    "summaries": {
+      "general": "Executive leadership approved the Q4 product roadmap and allocated budget for 3 new senior backend engineering hires. Carlos Gomez highlighted market expansion into European enterprise sectors.",
+      "sales": "Target ARR expansion to $12M ARR by end of Q4, driven by European data center compliance.",
+      "oneOnOne": "Carlos and Sarah agreed on key hiring priorities for engineering management.",
+      "standup": "N/A",
+      "actionItems": [
+        "Emily Watson: Finalize Q4 headcount budget allocation.",
+        "Carlos Gomez: Approve EU cloud region hosting expansion."
+      ]
+    },
+    "transcript": [
+      {
+        "id": "t5-001",
+        "speaker": "Carlos Gomez",
+        "startSec": 15,
+        "endSec": 50,
+        "text": "Welcome team. Today we need to align on our Q4 financial plan and approve the engineering roadmap for European expansion."
+      },
+      {
+        "id": "t5-002",
+        "speaker": "Emily Watson",
+        "startSec": 53,
+        "endSec": 95,
+        "text": "Financially, Q3 revenue exceeded projections by 14%. We have headroom to hire 3 senior backend engineers to support Alex's infrastructure plan."
+      }
+    ]
+  },
+  {
+    "id": "m-006",
+    "title": "Customer Discovery - Stripe API Integration Feedback",
+    "date": "2026-09-20T13:30:00.000Z",
+    "durationSec": 1800,
+    "meetingType": "Product",
+    "participants": [
+      {
+        "id": "p6",
+        "name": "Rachel Adams",
+        "email": "rachel.adams@fathom.ai",
+        "role": "Product Manager",
+        "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150"
+      },
+      {
+        "id": "p-cd1",
+        "name": "Liam Vance",
+        "email": "liam@fintechlabs.io",
+        "role": "Head of Engineering",
+        "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150"
+      },
+      {
+        "id": "p-cd2",
+        "name": "Chloe Bennett",
+        "email": "chloe@fintechlabs.io",
+        "role": "Product Designer",
+        "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
+      }
+    ],
+    "chapters": [
+      {
+        "id": "c6-1",
+        "title": "Integration Pain Points",
+        "startSec": 0,
+        "endSec": 900
+      },
+      {
+        "id": "c6-2",
+        "title": "Webhook & Event Payload Requests",
+        "startSec": 900,
+        "endSec": 1800
+      }
+    ],
+    "summaries": {
+      "general": "Rachel conducted a discovery interview with FintechLabs regarding their custom Fathom integration via webhooks. Liam requested real-time transcript event stream endpoints.",
+      "sales": "FintechLabs looking to double API seat license once event webhooks ship.",
+      "oneOnOne": "N/A",
+      "standup": "N/A",
+      "actionItems": [
+        "Rachel Adams: Share API webhook documentation draft with Liam."
+      ]
+    },
+    "transcript": [
+      {
+        "id": "t6-001",
+        "speaker": "Rachel Adams",
+        "startSec": 10,
+        "endSec": 35,
+        "text": "Thanks Liam and Chloe for taking the time to share feedback on our API integration."
+      },
+      {
+        "id": "t6-002",
+        "speaker": "Liam Vance",
+        "startSec": 38,
+        "endSec": 75,
+        "text": "We love the AI summaries, but we really need webhook triggers whenever a meeting highlight is saved."
+      }
+    ]
+  },
+  {
+    "id": "m-007",
+    "title": "Design System v2.0 UI/UX Review & Component Spec",
+    "date": "2026-09-19T10:00:00.000Z",
+    "durationSec": 1800,
+    "meetingType": "Product",
+    "participants": [
+      {
+        "id": "p4",
+        "name": "Elena Rostova",
+        "email": "elena.rostova@fathom.ai",
+        "role": "Design Director",
+        "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
+      },
+      {
+        "id": "p5",
+        "name": "David Kim",
+        "email": "david.kim@fathom.ai",
+        "role": "Senior Frontend Dev",
+        "avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150"
+      },
+      {
+        "id": "p-ds1",
+        "name": "Oliver Vance",
+        "email": "oliver.vance@fathom.ai",
+        "role": "UI Engineer",
+        "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150"
+      },
+      {
+        "id": "p-ds2",
+        "name": "Sophia Martinez",
+        "email": "sophia.m@fathom.ai",
+        "role": "UX Researcher",
+        "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150"
+      }
+    ],
+    "chapters": [
+      {
+        "id": "c7-1",
+        "title": "Design Tokens & Dark Mode Palette",
+        "startSec": 0,
+        "endSec": 900
+      },
+      {
+        "id": "c7-2",
+        "title": "Transcript Player Glassmorphism & Micro-animations",
+        "startSec": 900,
+        "endSec": 1800
+      }
+    ],
+    "summaries": {
+      "general": "Elena presented Design System v2.0 featuring sleek glassmorphic card components, tailored indigo color tokens, and responsive transcript sidebars.",
+      "sales": "N/A",
+      "oneOnOne": "Elena and David reviewed Tailwind CSS v4 variable mappings.",
+      "standup": "N/A",
+      "actionItems": [
+        "David Kim: Create Tailwind utility classes for dark glassmorphism effects."
+      ]
+    },
+    "transcript": [
+      {
+        "id": "t7-001",
+        "speaker": "Elena Rostova",
+        "startSec": 10,
+        "endSec": 40,
+        "text": "Today we're reviewing Design System v2.0. We've introduced rich dark mode color tokens to elevate the player visual experience."
+      },
+      {
+        "id": "t7-002",
+        "speaker": "David Kim",
+        "startSec": 43,
+        "endSec": 80,
+        "text": "These glassmorphism cards look incredible Elena. The contrast ratios pass AAA accessibility standards perfectly."
+      }
+    ]
+  },
+  {
+    "id": "m-008",
+    "title": "Sales Pitch - Global Logistics Deal Closing",
+    "date": "2026-09-18T16:00:00.000Z",
+    "durationSec": 2400,
+    "meetingType": "Sales",
+    "participants": [
+      {
+        "id": "p-s1",
+        "name": "Jessica Vance",
+        "email": "jessica.vance@fathom.ai",
+        "role": "Account Executive",
+        "avatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150"
+      },
+      {
+        "id": "p-gl1",
+        "name": "Robert Sterling",
+        "email": "r.sterling@globallogistics.com",
+        "role": "VP of Operations",
+        "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150"
+      },
+      {
+        "id": "p-gl2",
+        "name": "Amanda Croft",
+        "email": "a.croft@globallogistics.com",
+        "role": "Director of Technology",
+        "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150"
+      },
+      {
+        "id": "p-s4",
+        "name": "Tom Brady",
+        "email": "tom.brady@fathom.ai",
+        "role": "Solutions Engineer",
+        "avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150"
+      }
+    ],
+    "chapters": [
+      {
+        "id": "c8-1",
+        "title": "Fathom Notetaker Live Demo",
+        "startSec": 0,
+        "endSec": 1200
+      },
+      {
+        "id": "c8-2",
+        "title": "Contract Terms & Implementation Schedule",
+        "startSec": 1200,
+        "endSec": 2400
+      }
+    ],
+    "summaries": {
+      "general": "Jessica Vance demoed Fathom's automated action item sync to Global Logistics execs. Robert Sterling agreed to initiate pilot deployment for 200 account managers.",
+      "sales": "Closed Deal: 200 seats initial pilot ($84k ARR). Contract signed verbally, execution target Friday.",
+      "oneOnOne": "N/A",
+      "standup": "N/A",
+      "actionItems": [
+        "Jessica Vance: Send Master Services Agreement to Amanda Croft."
+      ]
+    },
+    "transcript": [
+      {
+        "id": "t8-001",
+        "speaker": "Jessica Vance",
+        "startSec": 15,
+        "endSec": 45,
+        "text": "Robert and Amanda, let me show you how Fathom automatically syncs meeting summaries into Salesforce in real time."
+      },
+      {
+        "id": "t8-002",
+        "speaker": "Robert Sterling",
+        "startSec": 48,
+        "endSec": 85,
+        "text": "If this cuts down manual meeting logging for our logistics managers, we're ready to sign today."
+      }
+    ]
+  },
+  {
+    "id": "m-009",
+    "title": "1:1 Career Mentorship - Staff Engineering Track",
+    "date": "2026-09-17T14:00:00.000Z",
+    "durationSec": 1500,
+    "meetingType": "1:1",
+    "participants": [
+      {
+        "id": "p2",
+        "name": "Alex Rivera",
+        "email": "alex.rivera@fathom.ai",
+        "role": "Lead Architect",
+        "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150"
+      },
+      {
+        "id": "p5",
+        "name": "David Kim",
+        "email": "david.kim@fathom.ai",
+        "role": "Senior Frontend Dev",
+        "avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150"
+      }
+    ],
+    "chapters": [
+      {
+        "id": "c9-1",
+        "title": "Technical Leadership & System Design Growth",
+        "startSec": 0,
+        "endSec": 1500
+      }
+    ],
+    "summaries": {
+      "general": "Alex Rivera mentored David Kim on technical design document framing and leading architecture working groups.",
+      "sales": "N/A",
+      "oneOnOne": "David requested mentorship on distributed consensus algorithms and streaming performance optimization.",
+      "standup": "N/A",
+      "actionItems": [
+        "David Kim: Draft technical design document for client-side state streaming."
+      ]
+    },
+    "transcript": [
+      {
+        "id": "t9-001",
+        "speaker": "Alex Rivera",
+        "startSec": 10,
+        "endSec": 35,
+        "text": "David, system architecture leadership is about guiding trade-off decisions clearly for the broader team."
+      },
+      {
+        "id": "t9-002",
+        "speaker": "David Kim",
+        "startSec": 38,
+        "endSec": 70,
+        "text": "That makes total sense Alex. Writing the RFC for local highlights was a great first step."
+      }
+    ]
+  },
+  {
+    "id": "m-010",
+    "title": "Post-Mortem Review - API Latency Spike Incident #408",
+    "date": "2026-09-16T11:00:00.000Z",
+    "durationSec": 2100,
+    "meetingType": "Engineering",
+    "participants": [
+      {
+        "id": "p2",
+        "name": "Alex Rivera",
+        "email": "alex.rivera@fathom.ai",
+        "role": "Lead Architect",
+        "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150"
+      },
+      {
+        "id": "p3",
+        "name": "Marcus Chen",
+        "email": "marcus.chen@fathom.ai",
+        "role": "Tech Lead",
+        "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150"
+      },
+      {
+        "id": "p7",
+        "name": "James Wilson",
+        "email": "james.wilson@fathom.ai",
+        "role": "DevOps Lead",
+        "avatar": "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150"
+      },
+      {
+        "id": "p8",
+        "name": "Maya Patel",
+        "email": "maya.patel@fathom.ai",
+        "role": "QA Lead",
+        "avatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150"
+      },
+      {
+        "id": "p5",
+        "name": "David Kim",
+        "email": "david.kim@fathom.ai",
+        "role": "Senior Frontend Dev",
+        "avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150"
+      }
+    ],
+    "chapters": [
+      {
+        "id": "ca-1",
+        "title": "Timeline of Incident #408",
+        "startSec": 0,
+        "endSec": 700
+      },
+      {
+        "id": "ca-2",
+        "title": "Root Cause Analysis: Redis Connection Pool Exhaustion",
+        "startSec": 700,
+        "endSec": 1400
+      },
+      {
+        "id": "ca-3",
+        "title": "Remediation & Preventative Infrastructure Fixes",
+        "startSec": 1400,
+        "endSec": 2100
+      }
+    ],
+    "summaries": {
+      "general": "Blameless post-mortem review of Incident #408. Root cause was Redis connection pool exhaustion during a 300% traffic surge. Implemented connection pooling and circuit breaker protection.",
+      "sales": "N/A",
+      "oneOnOne": "N/A",
+      "standup": "N/A",
+      "actionItems": [
+        "James Wilson: Upgrade Redis cluster instance size and tune maxconnections setting.",
+        "Marcus Chen: Implement resilience4j circuit breaker around audio worker calls."
+      ]
+    },
+    "transcript": [
+      {
+        "id": "ta-001",
+        "speaker": "James Wilson",
+        "startSec": 10,
+        "endSec": 45,
+        "text": "Let me begin the blameless post-mortem for Incident #408. Latency spiked to 4.2s at 14:15 UTC yesterday."
+      },
+      {
+        "id": "ta-002",
+        "speaker": "Marcus Chen",
+        "startSec": 48,
+        "endSec": 85,
+        "text": "The root cause was Redis connection pool exhaustion when 50 worker pods simultaneously reconnected after a network blip."
+      }
+    ]
+  }
+]
