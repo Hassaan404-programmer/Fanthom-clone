@@ -15,12 +15,20 @@ export interface Chapter {
 
 export type SummaryTemplateType = 'general' | 'sales' | 'oneOnOne' | 'standup';
 
+export interface ActionItem {
+  id?: string;
+  text: string;
+  assignee?: string;
+  speaker?: string;
+  timestampSec?: number;
+}
+
 export interface MeetingSummaries {
   general: string;
   sales?: string;
   oneOnOne?: string;
   standup?: string;
-  actionItems: string[];
+  actionItems: (string | ActionItem)[];
 }
 
 export interface TranscriptLine {
@@ -31,11 +39,15 @@ export interface TranscriptLine {
   text: string;
 }
 
+export type AnnotationType = 'highlight' | 'note';
+
 export interface Highlight {
   id: string;
   meetingId: string;
   sec: number;
   note: string;
+  type?: AnnotationType;
+  speaker?: string;
   createdAt?: string;
 }
 

@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Chapter, MeetingSummaries, SummaryTemplateType, Participant } from '@/types';
-import { formatSecToTime } from '@/lib/utils';
+import { Chapter, MeetingSummaries, SummaryTemplateType, Participant, ActionItem } from '@/types';
+import { formatSecToTime, getSpeakerColorStyle } from '@/lib/utils';
 import {
   Sparkles,
   CheckSquare,
@@ -10,13 +10,15 @@ import {
   Copy,
   Check,
   Bookmark,
-  Layers,
   FileText,
   DollarSign,
   UserCheck,
   Zap,
   ChevronUp,
   ChevronDown,
+  Play,
+  Mail,
+  CheckCircle2,
 } from 'lucide-react';
 
 interface SummaryPanelProps {
@@ -25,6 +27,7 @@ interface SummaryPanelProps {
   participants: Participant[];
   onSeek: (timeSec: number) => void;
   meetingId?: string;
+  meetingTitle?: string;
 }
 
 const TEMPLATE_TABS: {
@@ -44,6 +47,7 @@ export const SummaryPanel: React.FC<SummaryPanelProps> = ({
   participants = [],
   onSeek,
   meetingId,
+  meetingTitle = 'Meeting',
 }) => {
   const [activeTemplate, setActiveTemplate] = useState<SummaryTemplateType>('general');
   const [isTemplateLoading, setIsTemplateLoading] = useState<boolean>(false);
@@ -53,8 +57,8 @@ export const SummaryPanel: React.FC<SummaryPanelProps> = ({
     ? `fathom_action_items_${meetingId}`
     : 'fathom_action_items_default';
   const [completedActions, setCompletedActions] = useState<Record<number, boolean>>({});
-  const [copied, setCopied] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Load saved checkbox states from localStorage per meeting
   useEffect(() => {
@@ -80,6 +84,13 @@ export const SummaryPanel: React.FC<SummaryPanelProps> = ({
       }
     };
   }, []);
+
+  const triggerToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 2500);
+  };
 
   const handleTemplateSwitch = (templateId: SummaryTemplateType) => {
     if (templateId === activeTemplate) return;
@@ -123,6 +134,33 @@ export const SummaryPanel: React.FC<SummaryPanelProps> = ({
 
   const currentSummaryText = getSummaryTextForTemplate(activeTemplate);
 
+  // Normalize action item object vs string
+  const normalizedActionItems = (summaries.actionItems || []).map((raw, idx) => {
+    if (typeof raw === 'object' && raw !== null) {
+      return {
+        id: raw.id || `ai-${idx}`,
+        assignee: raw.assignee || 'Team',
+        text: raw.text,
+        timestampSec: raw.timestampSec ?? (idx + 1) * 60,
+      };
+    }
+
+    let assignee = 'Team';
+    let text = raw;
+    if (raw.includes(':')) {
+      const parts = raw.split(':');
+      assignee = parts[0].trim();
+      text = parts.slice(1).join(':').trim();
+    }
+
+    return {
+      id: `ai-${idx}`,
+      assignee,
+      text,
+      timestampSec: (idx + 1) * 60,
+    };
+  });
+
   const toggleAction = (idx: number) => {
     setCompletedActions((prev) => {
       const nextState = {
@@ -140,18 +178,46 @@ export const SummaryPanel: React.FC<SummaryPanelProps> = ({
     });
   };
 
-  const handleCopyActionItems = () => {
-    if (!summaries.actionItems || summaries.actionItems.length === 0) return;
-    const text = summaries.actionItems
-      .map((item, i) => `${completedActions[i] ? '[x]' : '[ ]'} ${item}`)
+  const handleCopySummary = () => {
+    navigator.clipboard.writeText(currentSummaryText);
+    triggerToast('Copied! Summary copied to clipboard.');
+  };
+
+  const handleCopyFollowUpEmail = () => {
+    const actionListText = normalizedActionItems
+      .map((item) => `- [${item.assignee}] ${item.text}`)
       .join('\n');
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+
+    const emailDraft = `Subject: Follow-up: ${meetingTitle} - Summary & Action Items
+
+Hi Team,
+
+Thanks for your time during our recent sync. Here is a summary of our discussion and key outcomes:
+
+${currentSummaryText}
+
+Key Action Items:
+${actionListText || '- No pending action items.'}
+
+Please reach out if you have any questions or updates.
+
+Best regards,
+Fathom Meeting Assistant`;
+
+    navigator.clipboard.writeText(emailDraft);
+    triggerToast('Copied! Follow-up email copied to clipboard.');
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 sm:p-6 space-y-5 transition-all">
+    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 sm:p-6 space-y-5 transition-all relative">
+      {/* Toast Notification Banner */}
+      {toastMessage && (
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900 text-white text-xs font-semibold shadow-xl border border-slate-700 animate-fade-in">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
       {/* Header & Collapse Toggle */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -164,9 +230,6 @@ export const SummaryPanel: React.FC<SummaryPanelProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider hidden sm:inline">
-            Template Driven
-          </span>
           <button
             onClick={() => setIsCollapsed((prev) => !prev)}
             className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
@@ -183,7 +246,34 @@ export const SummaryPanel: React.FC<SummaryPanelProps> = ({
 
       {/* Main Collapsible Content */}
       {!isCollapsed && (
-        <div className="space-y-6 animate-fade-in">
+        <div className="space-y-5 animate-fade-in">
+          {/* Quick Copy CTAs Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200/60">
+            <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">
+              Quick Actions
+            </span>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleCopySummary}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors shadow-2xs"
+                title="Copy current summary text to clipboard"
+              >
+                <Copy className="w-3.5 h-3.5 text-slate-500" />
+                <span>Copy Summary</span>
+              </button>
+
+              <button
+                onClick={handleCopyFollowUpEmail}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors shadow-2xs"
+                title="Generate and copy formatted follow-up email draft"
+              >
+                <Mail className="w-3.5 h-3.5 text-indigo-600" />
+                <span>Copy Follow-up Email</span>
+              </button>
+            </div>
+          </div>
+
           {/* Template Switcher Tabs */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 p-1 bg-slate-100/80 rounded-xl border border-slate-200/60">
             {TEMPLATE_TABS.map((tab) => {
@@ -222,64 +312,79 @@ export const SummaryPanel: React.FC<SummaryPanelProps> = ({
           </div>
 
           {/* Action Items List Section */}
-          {summaries.actionItems && summaries.actionItems.length > 0 && (
+          {normalizedActionItems.length > 0 && (
             <div className="space-y-3 pt-2 border-t border-slate-100">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-500" />
                   <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                    Action Items ({summaries.actionItems.length})
+                    Action Items ({normalizedActionItems.length})
                   </h4>
                 </div>
-
-                <button
-                  onClick={handleCopyActionItems}
-                  className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
-                  title="Copy action items to clipboard"
-                >
-                  {copied ? (
-                    <>
-                      <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      <span className="text-emerald-600">Copied!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-3.5 h-3.5 text-slate-500" />
-                      <span>Copy List</span>
-                    </>
-                  )}
-                </button>
               </div>
 
-              <div className="space-y-2">
-                {summaries.actionItems.map((item, idx) => {
+              <div className="space-y-2.5">
+                {normalizedActionItems.map((item, idx) => {
                   const isDone = !!completedActions[idx];
+                  const speakerStyle = getSpeakerColorStyle(item.assignee);
+
                   return (
-                    <label
-                      key={idx}
-                      className={`flex items-start gap-3 p-3 rounded-xl border transition-all cursor-pointer select-none ${
+                    <div
+                      key={item.id || idx}
+                      className={`flex items-start justify-between gap-3 p-3.5 rounded-xl border transition-all cursor-pointer select-none ${
                         isDone
-                          ? 'bg-slate-50/60 border-slate-200/60 text-slate-400 line-through'
+                          ? 'bg-slate-50/60 border-slate-200/60 text-slate-400'
                           : 'bg-white border-slate-200/80 hover:border-indigo-200 text-slate-800 shadow-2xs'
                       }`}
                     >
-                      <input
-                        type="checkbox"
-                        checked={isDone}
-                        onChange={() => toggleAction(idx)}
-                        className="sr-only"
-                      />
-                      <span className="mt-0.5 shrink-0 text-slate-400 hover:text-indigo-600 transition-colors">
-                        {isDone ? (
-                          <CheckSquare className="w-4 h-4 text-emerald-600" />
-                        ) : (
-                          <Square className="w-4 h-4 text-slate-300" />
-                        )}
-                      </span>
-                      <span className="text-xs sm:text-sm font-medium leading-normal">
-                        {item}
-                      </span>
-                    </label>
+                      <div className="flex items-start gap-3 min-w-0 flex-1">
+                        <label
+                          className="mt-0.5 shrink-0 cursor-pointer text-slate-400 hover:text-indigo-600 transition-colors"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleAction(idx);
+                          }}
+                        >
+                          {isDone ? (
+                            <CheckSquare className="w-4 h-4 text-emerald-600" />
+                          ) : (
+                            <Square className="w-4 h-4 text-slate-300" />
+                          )}
+                        </label>
+
+                        <div className="space-y-1.5 min-w-0 flex-1">
+                          {/* Speaker / Assignee Tag + Play Timestamp Button */}
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span
+                              className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${speakerStyle.bg} ${speakerStyle.text} border ${speakerStyle.border}`}
+                            >
+                              {item.assignee}
+                            </span>
+
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onSeek(item.timestampSec);
+                              }}
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-[10px] font-mono font-bold transition-colors group"
+                              title={`Seek to timestamp ${formatSecToTime(item.timestampSec)}`}
+                            >
+                              <Play className="w-2.5 h-2.5 fill-current text-indigo-600 group-hover:scale-110 transition-transform" />
+                              <span>{formatSecToTime(item.timestampSec)}</span>
+                            </button>
+                          </div>
+
+                          <p
+                            className={`text-xs sm:text-sm font-medium leading-relaxed ${
+                              isDone ? 'line-through text-slate-400' : 'text-slate-800'
+                            }`}
+                          >
+                            {item.text}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   );
                 })}
               </div>

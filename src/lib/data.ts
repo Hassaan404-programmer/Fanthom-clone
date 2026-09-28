@@ -90,12 +90,61 @@ export function searchGlobalMeetings(query: string): GlobalSearchResult[] {
 // LocalStorage Helper Keys & Utilities for Client Actions
 export const LOCAL_STORAGE_HIGHLIGHTS_KEY = 'fathom_user_highlights';
 
+const INITIAL_SEED_HIGHLIGHTS: Record<string, Omit<Highlight, 'id' | 'createdAt'>[]> = {
+  'm-001': [
+    {
+      meetingId: 'm-001',
+      sec: 57,
+      speaker: 'Alex Rivera',
+      type: 'highlight',
+      note: 'Streaming pipeline architecture proposed for cutting latency below 300ms.',
+    },
+    {
+      meetingId: 'm-001',
+      sec: 97,
+      speaker: 'Elena Rostova',
+      type: 'note',
+      note: 'UI team requested real-time visual bookmark updates without state flicker.',
+    },
+  ],
+  'm-002': [
+    {
+      meetingId: 'm-002',
+      sec: 45,
+      speaker: 'Jessica Vance',
+      type: 'highlight',
+      note: '450-seat expansion discount approved for annual commitment.',
+    },
+    {
+      meetingId: 'm-002',
+      sec: 120,
+      speaker: 'Tom Brady',
+      type: 'note',
+      note: 'Acme security team requires SAML 2.0 Okta integration specs.',
+    },
+  ],
+};
+
 export function getLocalHighlights(meetingId?: string): Highlight[] {
   if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(LOCAL_STORAGE_HIGHLIGHTS_KEY);
-    if (!raw) return [];
-    const highlights: Highlight[] = JSON.parse(raw);
+    let highlights: Highlight[] = raw ? JSON.parse(raw) : [];
+
+    // Pre-populate seed highlights if localStorage is empty for this meeting
+    if (meetingId && !highlights.some((h) => h.meetingId === meetingId)) {
+      const seedItems = INITIAL_SEED_HIGHLIGHTS[meetingId];
+      if (seedItems) {
+        const seeded = seedItems.map((item, idx) => ({
+          ...item,
+          id: `hl-seed-${meetingId}-${idx}`,
+          createdAt: new Date().toISOString(),
+        }));
+        highlights = [...seeded, ...highlights];
+        localStorage.setItem(LOCAL_STORAGE_HIGHLIGHTS_KEY, JSON.stringify(highlights));
+      }
+    }
+
     if (meetingId) {
       return highlights.filter((h) => h.meetingId === meetingId);
     }
@@ -113,6 +162,8 @@ export function saveLocalHighlight(highlight: Omit<Highlight, 'id' | 'createdAt'
   const existing = getLocalHighlights();
   const newHighlight: Highlight = {
     ...highlight,
+    type: highlight.type || 'highlight',
+    speaker: highlight.speaker || 'Speaker',
     id: `hl-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
     createdAt: new Date().toISOString(),
   };

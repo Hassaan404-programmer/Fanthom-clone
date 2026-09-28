@@ -237,9 +237,9 @@ export const MeetingDetailClient: React.FC<MeetingDetailClientProps> = ({
 
         {/* Core Layout: Player + Left Panel (Summary/Highlights) & Transcript (Right) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-          {/* Left Column: Player (sticky) + Tabbed Summary/Highlights Panel */}
-          <div className="lg:col-span-5 space-y-6">
-            <div className="lg:sticky lg:top-20 z-20 space-y-6">
+          {/* Left Column: Fixed/Sticky height panel with internal scroll */}
+          <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6.5rem)] lg:overflow-y-auto lg:pr-1 no-scrollbar">
+            <div className="space-y-6">
               <MeetingPlayer
                 meetingTitle={meeting.title}
                 durationSec={durationSec}
@@ -295,6 +295,7 @@ export const MeetingDetailClient: React.FC<MeetingDetailClientProps> = ({
                 />
                 <SummaryPanel
                   meetingId={meeting.id}
+                  meetingTitle={meeting.title}
                   summaries={meeting.summaries}
                   chapters={meeting.chapters || []}
                   participants={meeting.participants || []}
@@ -314,6 +315,8 @@ export const MeetingDetailClient: React.FC<MeetingDetailClientProps> = ({
                   meetingId={meeting.id}
                   currentTime={currentTime}
                   onSeek={handleSeek}
+                  transcript={meeting.transcript || []}
+                  participants={meeting.participants || []}
                 />
               </div>
             </div>
@@ -321,10 +324,10 @@ export const MeetingDetailClient: React.FC<MeetingDetailClientProps> = ({
 
           {/* Right Column: Chapter Timeline Strip + Transcript Panel */}
           <div
-            className={`lg:col-span-7 space-y-6 ${
+            className={`lg:col-span-7 space-y-4 lg:sticky lg:top-20 lg:h-[calc(100vh-6.5rem)] lg:flex lg:flex-col ${
               mobileTab === 'summary' || mobileTab === 'highlights'
-                ? 'hidden lg:block'
-                : 'block'
+                ? 'hidden lg:flex'
+                : 'flex'
             }`}
           >
             {/* Chapter Timeline Strip */}

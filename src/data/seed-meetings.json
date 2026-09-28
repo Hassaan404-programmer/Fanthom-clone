@@ -108,11 +108,36 @@
       "oneOnOne": "Sarah Jenkins aligned with Rachel Adams on ownership of the 6-week release timeline and cross-functional team milestones.",
       "standup": "Identified core bottleneck in worker pod memory starvation during peak volume. Decoupled WebRTC receiver from speech inference via Redis buffer. LocalStorage state persistence added to prevent highlight data loss.",
       "actionItems": [
-        "Alex Rivera: Publish technical RFC for tokenized WebSocket streaming protocol by Friday.",
-        "Elena Rostova: Export high-fidelity Figma icons and participant badges by Wednesday.",
-        "Marcus Chen & David Kim: Finalize local storage persistence fallback and virtual list scrolling.",
-        "James Wilson: Provision staging Kubernetes clusters with GPU autoscaling.",
-        "Maya Patel: Build Playwright automated test suite for multi-speaker overlap scenarios."
+        {
+          "id": "ai-m-001-1",
+          "assignee": "Alex Rivera",
+          "text": "Publish technical RFC for tokenized WebSocket streaming protocol by Friday.",
+          "timestampSec": 57
+        },
+        {
+          "id": "ai-m-001-2",
+          "assignee": "Elena Rostova",
+          "text": "Export high-fidelity Figma icons and participant badges by Wednesday.",
+          "timestampSec": 97
+        },
+        {
+          "id": "ai-m-001-3",
+          "assignee": "Marcus Chen & David Kim",
+          "text": "Finalize local storage persistence fallback and virtual list scrolling.",
+          "timestampSec": 77
+        },
+        {
+          "id": "ai-m-001-4",
+          "assignee": "James Wilson",
+          "text": "Provision staging Kubernetes clusters with GPU autoscaling.",
+          "timestampSec": 137
+        },
+        {
+          "id": "ai-m-001-5",
+          "assignee": "Maya Patel",
+          "text": "Build Playwright automated test suite for multi-speaker overlap scenarios.",
+          "timestampSec": 157
+        }
       ]
     },
     "transcript": [
@@ -387,7 +412,7 @@
         "speaker": "James Wilson",
         "startSec": 767,
         "endSec": 785,
-        "text": "From an infrastructure standpoint, the Redis pub/sub layer adds minimal latency\u2014under 4ms overhead."
+        "text": "From an infrastructure standpoint, the Redis pub/sub layer adds minimal latency—under 4ms overhead."
       },
       {
         "id": "t1-040",
@@ -1251,9 +1276,24 @@
       "oneOnOne": "Jessica and Michael reviewed account adoption benchmarks across Acme's East Coast sales reps.",
       "standup": "Tom Brady to assist Samantha's IT team with Okta SAML XML metadata upload on Thursday.",
       "actionItems": [
-        "Jessica Vance: Send revised 450-seat Enterprise Agreement proposal with annual billing discount.",
-        "Tom Brady: Provide SAML SSO setup documentation to Samantha Wu.",
-        "Michael Thorne: Schedule procurement team sign-off meeting for next Monday."
+        {
+          "id": "ai-m-002-1",
+          "assignee": "Jessica Vance",
+          "text": "Send revised 450-seat Enterprise Agreement proposal with annual billing discount.",
+          "timestampSec": 10
+        },
+        {
+          "id": "ai-m-002-2",
+          "assignee": "Tom Brady",
+          "text": "Provide SAML SSO setup documentation to Samantha Wu.",
+          "timestampSec": 113
+        },
+        {
+          "id": "ai-m-002-3",
+          "assignee": "Michael Thorne",
+          "text": "Schedule procurement team sign-off meeting for next Monday.",
+          "timestampSec": 38
+        }
       ]
     },
     "transcript": [
@@ -1378,8 +1418,18 @@
       "oneOnOne": "Marcus aligned with David on local storage fallback testing.",
       "standup": "Blockers: CI/CD runner timeouts fixed by upgrading runner specs. Goal for today: complete Next.js 15 App Router page layout.",
       "actionItems": [
-        "David Kim: Submit PR for localStorage highlight hook.",
-        "James Wilson: Monitor staging CI build speeds."
+        {
+          "id": "ai-m-003-1",
+          "assignee": "David Kim",
+          "text": "Submit PR for localStorage highlight hook.",
+          "timestampSec": 28
+        },
+        {
+          "id": "ai-m-003-2",
+          "assignee": "James Wilson",
+          "text": "Monitor staging CI build speeds.",
+          "timestampSec": 93
+        }
       ]
     },
     "transcript": [
@@ -1455,8 +1505,18 @@
       "oneOnOne": "Rachel expressed interest in leading cross-functional AI research initiatives. Sarah agreed to sponsor her entry into executive strategy reviews.",
       "standup": "N/A",
       "actionItems": [
-        "Sarah Jenkins: Draft Staff PM promotion rubric document.",
-        "Rachel Adams: Outline Q4 AI research roadmap document."
+        {
+          "id": "ai-m-004-1",
+          "assignee": "Sarah Jenkins",
+          "text": "Draft Staff PM promotion rubric document.",
+          "timestampSec": 10
+        },
+        {
+          "id": "ai-m-004-2",
+          "assignee": "Rachel Adams",
+          "text": "Outline Q4 AI research roadmap document.",
+          "timestampSec": 43
+        }
       ]
     },
     "transcript": [
@@ -1559,8 +1619,18 @@
       "oneOnOne": "Carlos and Sarah agreed on key hiring priorities for engineering management.",
       "standup": "N/A",
       "actionItems": [
-        "Emily Watson: Finalize Q4 headcount budget allocation.",
-        "Carlos Gomez: Approve EU cloud region hosting expansion."
+        {
+          "id": "ai-m-005-1",
+          "assignee": "Emily Watson",
+          "text": "Finalize Q4 headcount budget allocation.",
+          "timestampSec": 53
+        },
+        {
+          "id": "ai-m-005-2",
+          "assignee": "Carlos Gomez",
+          "text": "Approve EU cloud region hosting expansion.",
+          "timestampSec": 15
+        }
       ]
     },
     "transcript": [
@@ -1629,7 +1699,12 @@
       "oneOnOne": "N/A",
       "standup": "N/A",
       "actionItems": [
-        "Rachel Adams: Share API webhook documentation draft with Liam."
+        {
+          "id": "ai-m-006-1",
+          "assignee": "Rachel Adams",
+          "text": "Share API webhook documentation draft with Liam.",
+          "timestampSec": 10
+        }
       ]
     },
     "transcript": [
@@ -1705,7 +1780,12 @@
       "oneOnOne": "Elena and David reviewed Tailwind CSS v4 variable mappings.",
       "standup": "N/A",
       "actionItems": [
-        "David Kim: Create Tailwind utility classes for dark glassmorphism effects."
+        {
+          "id": "ai-m-007-1",
+          "assignee": "David Kim",
+          "text": "Create Tailwind utility classes for dark glassmorphism effects.",
+          "timestampSec": 43
+        }
       ]
     },
     "transcript": [
@@ -1781,7 +1861,12 @@
       "oneOnOne": "N/A",
       "standup": "N/A",
       "actionItems": [
-        "Jessica Vance: Send Master Services Agreement to Amanda Croft."
+        {
+          "id": "ai-m-008-1",
+          "assignee": "Jessica Vance",
+          "text": "Send Master Services Agreement to Amanda Croft.",
+          "timestampSec": 15
+        }
       ]
     },
     "transcript": [
@@ -1837,7 +1922,12 @@
       "oneOnOne": "David requested mentorship on distributed consensus algorithms and streaming performance optimization.",
       "standup": "N/A",
       "actionItems": [
-        "David Kim: Draft technical design document for client-side state streaming."
+        {
+          "id": "ai-m-009-1",
+          "assignee": "David Kim",
+          "text": "Draft technical design document for client-side state streaming.",
+          "timestampSec": 38
+        }
       ]
     },
     "transcript": [
@@ -1926,8 +2016,18 @@
       "oneOnOne": "N/A",
       "standup": "N/A",
       "actionItems": [
-        "James Wilson: Upgrade Redis cluster instance size and tune maxconnections setting.",
-        "Marcus Chen: Implement resilience4j circuit breaker around audio worker calls."
+        {
+          "id": "ai-m-010-1",
+          "assignee": "James Wilson",
+          "text": "Upgrade Redis cluster instance size and tune maxconnections setting.",
+          "timestampSec": 10
+        },
+        {
+          "id": "ai-m-010-2",
+          "assignee": "Marcus Chen",
+          "text": "Implement resilience4j circuit breaker around audio worker calls.",
+          "timestampSec": 48
+        }
       ]
     },
     "transcript": [

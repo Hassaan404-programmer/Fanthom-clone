@@ -118,7 +118,7 @@ export const TranscriptPanel: React.FC<TranscriptPanelProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs flex flex-col h-[650px] sm:h-[750px] overflow-hidden relative">
+    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs flex flex-col h-[600px] lg:h-full flex-1 min-h-0 overflow-hidden relative">
       {/* Header Bar */}
       <div className="p-4 sm:p-5 border-b border-slate-100 bg-slate-50/50 space-y-3 shrink-0">
         <div className="flex items-center justify-between">
