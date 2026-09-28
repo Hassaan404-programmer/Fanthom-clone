@@ -53,13 +53,15 @@ def process_session(session_dir):
         if stype == "USER_INPUT" or (src == "USER_EXPLICIT" and stype == "USER_INPUT"):
             if current_prompt is not None:
                 resp_text = "\n".join(current_response_chunks).strip()
+                if not resp_text:
+                    resp_text = "Completed requested actions and tool executions."
                 exchanges.append((current_prompt, resp_text))
                 current_response_chunks = []
 
             raw_prompt = data.get("content") or data.get("user_input") or ""
             current_prompt = {
                 "text": raw_prompt.strip(),
-                "timestamp": created_at,
+                "timestamp": created_at or datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "model": MODEL_NAME
             }
             if not first_prompt_time:
@@ -69,13 +71,15 @@ def process_session(session_dir):
         elif current_prompt is not None:
             content = data.get("content")
             if stype in ["PLANNER_RESPONSE", "MODEL_RESPONSE", "TEXT_RESPONSE"] or src == "MODEL":
-                if content and not data.get("tool_calls"):
-                    current_response_chunks.append(content)
-                elif content and isinstance(content, str) and not content.startswith("{") and not "tool_calls" in content:
-                    current_response_chunks.append(content)
+                if content and isinstance(content, str):
+                    clean_content = content.strip()
+                    if clean_content and not clean_content.startswith("{") and "tool_calls" not in clean_content:
+                        current_response_chunks.append(clean_content)
 
     if current_prompt is not None:
         resp_text = "\n".join(current_response_chunks).strip()
+        if not resp_text:
+            resp_text = "Completed requested actions and tool executions."
         exchanges.append((current_prompt, resp_text))
 
     if not exchanges:
