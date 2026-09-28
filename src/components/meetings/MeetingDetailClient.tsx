@@ -11,6 +11,7 @@ import { TranscriptPanel } from '@/components/transcript/TranscriptPanel';
 import { HighlightsPanel } from '@/components/highlights/HighlightsPanel';
 import { ClipCreatorModal } from '@/components/clip/ClipCreatorModal';
 import { ChapterTimelineStrip } from '@/components/chapters/ChapterTimelineStrip';
+import { TalkTimePanel } from '@/components/meetings/TalkTimePanel';
 import { formatDuration, formatMeetingDate } from '@/lib/utils';
 import {
   ArrowLeft,
@@ -282,12 +283,16 @@ export const MeetingDetailClient: React.FC<MeetingDetailClientProps> = ({
             <div className="space-y-6">
               {/* Summary View */}
               <div
-                className={`${
+                className={`space-y-6 ${
                   mobileTab === 'summary' || activeLeftTab === 'summary'
                     ? 'block'
                     : 'hidden lg:hidden'
                 }`}
               >
+                <TalkTimePanel
+                  transcript={meeting.transcript || []}
+                  onSeek={handleSeek}
+                />
                 <SummaryPanel
                   meetingId={meeting.id}
                   summaries={meeting.summaries}
