@@ -22,6 +22,23 @@ export function formatDuration(seconds: number): string {
   return remMins > 0 ? `${hrs}h ${remMins}m` : `${hrs}h`;
 }
 
+export function formatSecToTime(seconds: number): string {
+  if (isNaN(seconds) || seconds < 0) return '00:00';
+  const totalSec = Math.floor(seconds);
+  const hrs = Math.floor(totalSec / 3600);
+  const mins = Math.floor((totalSec % 3600) / 60);
+  const secs = totalSec % 60;
+
+  const mm = mins.toString().padStart(2, '0');
+  const ss = secs.toString().padStart(2, '0');
+
+  if (hrs > 0) {
+    const hh = hrs.toString().padStart(2, '0');
+    return `${hh}:${mm}:${ss}`;
+  }
+  return `${mm}:${ss}`;
+}
+
 export function formatMeetingDate(dateString: string): string {
   try {
     const d = new Date(dateString);
@@ -61,13 +78,10 @@ export function groupMeetingsByDate(meetings: Meeting[]): GroupedMeetings {
     return { today: [], yesterday: [], earlier: [] };
   }
 
-  // Find reference date (most recent date in dataset or current date)
-  // To ensure realistic grouping for seed data, we anchor reference date to the max date in meetings if needed
   const meetingDates = meetings.map((m) => new Date(m.date).getTime());
   const maxTime = Math.max(...meetingDates);
   const maxDate = new Date(maxTime);
 
-  // Normalize dates to midnight for accurate calendar day comparison
   const refDay = new Date(maxDate.getFullYear(), maxDate.getMonth(), maxDate.getDate()).getTime();
   const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -75,7 +89,6 @@ export function groupMeetingsByDate(meetings: Meeting[]): GroupedMeetings {
   const yesterday: Meeting[] = [];
   const earlier: Meeting[] = [];
 
-  // Sort meetings descending by date
   const sorted = [...meetings].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   sorted.forEach((m) => {
@@ -95,7 +108,93 @@ export function groupMeetingsByDate(meetings: Meeting[]): GroupedMeetings {
   return { today, yesterday, earlier };
 }
 
-// Participant Avatar Colors generator based on name hash
+// Avatar & Speaker Color Palettes
+export interface SpeakerColorStyle {
+  bg: string;
+  text: string;
+  border: string;
+  dot: string;
+  ring: string;
+  avatarBg: string;
+}
+
+const SPEAKER_PALETTES: SpeakerColorStyle[] = [
+  {
+    bg: 'bg-indigo-50/80',
+    text: 'text-indigo-700',
+    border: 'border-indigo-200',
+    dot: 'bg-indigo-500',
+    ring: 'ring-indigo-500/20',
+    avatarBg: 'bg-indigo-600 text-white',
+  },
+  {
+    bg: 'bg-emerald-50/80',
+    text: 'text-emerald-700',
+    border: 'border-emerald-200',
+    dot: 'bg-emerald-500',
+    ring: 'ring-emerald-500/20',
+    avatarBg: 'bg-emerald-600 text-white',
+  },
+  {
+    bg: 'bg-amber-50/80',
+    text: 'text-amber-800',
+    border: 'border-amber-200',
+    dot: 'bg-amber-500',
+    ring: 'ring-amber-500/20',
+    avatarBg: 'bg-amber-600 text-white',
+  },
+  {
+    bg: 'bg-purple-50/80',
+    text: 'text-purple-700',
+    border: 'border-purple-200',
+    dot: 'bg-purple-500',
+    ring: 'ring-purple-500/20',
+    avatarBg: 'bg-purple-600 text-white',
+  },
+  {
+    bg: 'bg-rose-50/80',
+    text: 'text-rose-700',
+    border: 'border-rose-200',
+    dot: 'bg-rose-500',
+    ring: 'ring-rose-500/20',
+    avatarBg: 'bg-rose-600 text-white',
+  },
+  {
+    bg: 'bg-cyan-50/80',
+    text: 'text-cyan-800',
+    border: 'border-cyan-200',
+    dot: 'bg-cyan-500',
+    ring: 'ring-cyan-500/20',
+    avatarBg: 'bg-cyan-600 text-white',
+  },
+  {
+    bg: 'bg-blue-50/80',
+    text: 'text-blue-700',
+    border: 'border-blue-200',
+    dot: 'bg-blue-500',
+    ring: 'ring-blue-500/20',
+    avatarBg: 'bg-blue-600 text-white',
+  },
+  {
+    bg: 'bg-violet-50/80',
+    text: 'text-violet-700',
+    border: 'border-violet-200',
+    dot: 'bg-violet-500',
+    ring: 'ring-violet-500/20',
+    avatarBg: 'bg-violet-600 text-white',
+  },
+];
+
+export function getSpeakerColorStyle(speakerName: string): SpeakerColorStyle {
+  if (!speakerName) return SPEAKER_PALETTES[0];
+  let hash = 0;
+  for (let i = 0; i < speakerName.length; i++) {
+    hash = speakerName.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash) % SPEAKER_PALETTES.length;
+  return SPEAKER_PALETTES[index];
+}
+
 const AVATAR_COLORS = [
   'bg-blue-100 text-blue-700 border-blue-200',
   'bg-purple-100 text-purple-700 border-purple-200',
