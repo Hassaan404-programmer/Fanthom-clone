@@ -289,6 +289,7 @@ export const MeetingDetailClient: React.FC<MeetingDetailClientProps> = ({
                 }`}
               >
                 <SummaryPanel
+                  meetingId={meeting.id}
                   summaries={meeting.summaries}
                   chapters={meeting.chapters || []}
                   participants={meeting.participants || []}

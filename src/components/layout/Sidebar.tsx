@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -30,6 +30,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSettingsClick,
 }) => {
   const pathname = usePathname();
+  const [isMac, setIsMac] = useState(true);
+
+  useEffect(() => {
+    if (typeof navigator !== 'undefined') {
+      const isMacOs = /(Mac|iPhone|iPod|iPad)/i.test(
+        navigator.userAgent || navigator.platform || ''
+      );
+      setIsMac(isMacOs);
+    }
+  }, []);
+
+  const searchHint = isMac ? '⌘K to search' : 'Ctrl+K to search';
 
   const navItems = [
     {
@@ -45,7 +57,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       icon: Search,
       active: false,
       onClick: onSearchClick,
-      badge: '⌘K',
+      badge: searchHint,
     },
     {
       name: 'Settings',
@@ -100,7 +112,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Navigation */}
-        <div className="flex-1 px-4 py-6 overflow-y-auto space-y-8">
+        <div className="flex-1 px-4 py-6 overflow-y-auto space-y-6">
+          {/* Quick Search Bar */}
+          <div>
+            <button
+              onClick={() => {
+                onSearchClick?.();
+                onClose?.();
+              }}
+              className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-slate-500 bg-slate-50 border border-slate-200/80 rounded-xl hover:bg-slate-100 hover:text-slate-800 transition-all shadow-2xs group"
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                <Search className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-600 transition-colors shrink-0" />
+                <span className="truncate">Search meetings...</span>
+              </div>
+              <kbd className="px-1.5 py-0.5 text-[10px] font-mono text-slate-400 bg-white border border-slate-200 rounded shadow-2xs shrink-0 ml-1">
+                {searchHint}
+              </kbd>
+            </button>
+          </div>
+
           {/* Main Navigation Group */}
           <div>
             <div className="px-3 mb-2 text-[11px] font-bold tracking-wider text-slate-400 uppercase">

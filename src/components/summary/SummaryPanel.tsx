@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Chapter, MeetingSummaries, SummaryTemplateType, Participant } from '@/types';
 import { formatSecToTime } from '@/lib/utils';
 import {
@@ -24,6 +24,7 @@ interface SummaryPanelProps {
   chapters: Chapter[];
   participants: Participant[];
   onSeek: (timeSec: number) => void;
+  meetingId?: string;
 }
 
 const TEMPLATE_TABS: {
@@ -42,11 +43,55 @@ export const SummaryPanel: React.FC<SummaryPanelProps> = ({
   chapters = [],
   participants = [],
   onSeek,
+  meetingId,
 }) => {
   const [activeTemplate, setActiveTemplate] = useState<SummaryTemplateType>('general');
+  const [isTemplateLoading, setIsTemplateLoading] = useState<boolean>(false);
+  const loadingTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const storageKey = meetingId
+    ? `fathom_action_items_${meetingId}`
+    : 'fathom_action_items_default';
   const [completedActions, setCompletedActions] = useState<Record<number, boolean>>({});
   const [copied, setCopied] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  // Load saved checkbox states from localStorage per meeting
+  useEffect(() => {
+    if (typeof window !== 'undefined' && storageKey) {
+      try {
+        const saved = localStorage.getItem(storageKey);
+        if (saved) {
+          setCompletedActions(JSON.parse(saved));
+        } else {
+          setCompletedActions({});
+        }
+      } catch (e) {
+        console.error('Failed to load action items state:', e);
+      }
+    }
+  }, [storageKey]);
+
+  // Clean up loading timer on unmount
+  useEffect(() => {
+    return () => {
+      if (loadingTimerRef.current) {
+        clearTimeout(loadingTimerRef.current);
+      }
+    };
+  }, []);
+
+  const handleTemplateSwitch = (templateId: SummaryTemplateType) => {
+    if (templateId === activeTemplate) return;
+    if (loadingTimerRef.current) {
+      clearTimeout(loadingTimerRef.current);
+    }
+    setActiveTemplate(templateId);
+    setIsTemplateLoading(true);
+    loadingTimerRef.current = setTimeout(() => {
+      setIsTemplateLoading(false);
+    }, 250);
+  };
 
   // Fallback template text if specific template key is omitted in seed
   const getSummaryTextForTemplate = (template: SummaryTemplateType): string => {
@@ -79,10 +124,20 @@ export const SummaryPanel: React.FC<SummaryPanelProps> = ({
   const currentSummaryText = getSummaryTextForTemplate(activeTemplate);
 
   const toggleAction = (idx: number) => {
-    setCompletedActions((prev) => ({
-      ...prev,
-      [idx]: !prev[idx],
-    }));
+    setCompletedActions((prev) => {
+      const nextState = {
+        ...prev,
+        [idx]: !prev[idx],
+      };
+      if (typeof window !== 'undefined' && storageKey) {
+        try {
+          localStorage.setItem(storageKey, JSON.stringify(nextState));
+        } catch (e) {
+          console.error('Failed to save action items state:', e);
+        }
+      }
+      return nextState;
+    });
   };
 
   const handleCopyActionItems = () => {
@@ -137,7 +192,7 @@ export const SummaryPanel: React.FC<SummaryPanelProps> = ({
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTemplate(tab.id)}
+                  onClick={() => handleTemplateSwitch(tab.id)}
                   className={`flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-lg text-xs font-semibold transition-all ${
                     isActive
                       ? 'bg-white text-indigo-700 shadow-xs border border-slate-200/80'
@@ -152,10 +207,18 @@ export const SummaryPanel: React.FC<SummaryPanelProps> = ({
           </div>
 
           {/* Summary Content Body */}
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/60">
-            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal">
-              {currentSummaryText}
-            </p>
+          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/60 min-h-[90px] flex items-center">
+            {isTemplateLoading ? (
+              <div className="w-full space-y-2.5 py-1 animate-pulse">
+                <div className="h-3.5 bg-slate-200/80 rounded-md w-full" />
+                <div className="h-3.5 bg-slate-200/80 rounded-md w-11/12" />
+                <div className="h-3.5 bg-slate-200/80 rounded-md w-4/5" />
+              </div>
+            ) : (
+              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal animate-fade-in">
+                {currentSummaryText}
+              </p>
+            )}
           </div>
 
           {/* Action Items List Section */}
@@ -192,26 +255,31 @@ export const SummaryPanel: React.FC<SummaryPanelProps> = ({
                 {summaries.actionItems.map((item, idx) => {
                   const isDone = !!completedActions[idx];
                   return (
-                    <div
+                    <label
                       key={idx}
-                      onClick={() => toggleAction(idx)}
-                      className={`flex items-start gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
+                      className={`flex items-start gap-3 p-3 rounded-xl border transition-all cursor-pointer select-none ${
                         isDone
                           ? 'bg-slate-50/60 border-slate-200/60 text-slate-400 line-through'
                           : 'bg-white border-slate-200/80 hover:border-indigo-200 text-slate-800 shadow-2xs'
                       }`}
                     >
-                      <button className="mt-0.5 shrink-0 text-slate-400 hover:text-indigo-600 transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={isDone}
+                        onChange={() => toggleAction(idx)}
+                        className="sr-only"
+                      />
+                      <span className="mt-0.5 shrink-0 text-slate-400 hover:text-indigo-600 transition-colors">
                         {isDone ? (
                           <CheckSquare className="w-4 h-4 text-emerald-600" />
                         ) : (
                           <Square className="w-4 h-4 text-slate-300" />
                         )}
-                      </button>
+                      </span>
                       <span className="text-xs sm:text-sm font-medium leading-normal">
                         {item}
                       </span>
-                    </div>
+                    </label>
                   );
                 })}
               </div>

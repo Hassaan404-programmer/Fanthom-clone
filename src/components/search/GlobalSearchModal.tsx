@@ -119,7 +119,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
             <div className="py-12 text-center text-slate-400">
               <Search className="w-8 h-8 mx-auto mb-2 text-slate-300" />
               <p className="text-sm font-semibold text-slate-600">
-                No results found matching &ldquo;{query}&rdquo;
+                No results found for &apos;{query}&apos;
               </p>
               <p className="text-xs text-slate-400 mt-1">
                 Try searching for keywords like &ldquo;latency&rdquo;, &ldquo;sales&rdquo;, &ldquo;architecture&rdquo;, or speaker names.
