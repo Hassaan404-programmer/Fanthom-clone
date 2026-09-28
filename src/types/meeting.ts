@@ -51,3 +51,14 @@ export interface Meeting {
   summaries: MeetingSummaries;
   transcript: TranscriptLine[];
 }
+
+export interface GlobalSearchResult {
+  meetingId: string;
+  meetingTitle: string;
+  meetingDate: string;
+  meetingType: string;
+  matchType: 'title' | 'summary' | 'transcript';
+  snippet: string;
+  speaker?: string;
+  timestampSec: number;
+}

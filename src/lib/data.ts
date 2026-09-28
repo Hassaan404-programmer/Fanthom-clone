@@ -1,4 +1,4 @@
-import { Meeting, Highlight } from '@/types';
+import { Meeting, Highlight, GlobalSearchResult } from '@/types';
 import seedMeetingsData from '@/data/seed-meetings.json';
 
 // Seed data accessor
@@ -10,6 +10,81 @@ export function getMeetings(): Meeting[] {
 
 export function getMeetingById(id: string): Meeting | undefined {
   return seedMeetings.find((m) => m.id === id);
+}
+
+// Global Search function across all meetings' titles, summaries, and transcripts
+export function searchGlobalMeetings(query: string): GlobalSearchResult[] {
+  if (!query || query.trim().length < 2) return [];
+  const q = query.trim().toLowerCase();
+  const results: GlobalSearchResult[] = [];
+
+  for (const meeting of seedMeetings) {
+    // 1. Match title
+    if (meeting.title.toLowerCase().includes(q)) {
+      results.push({
+        meetingId: meeting.id,
+        meetingTitle: meeting.title,
+        meetingDate: meeting.date,
+        meetingType: meeting.meetingType,
+        matchType: 'title',
+        snippet: meeting.title,
+        timestampSec: 0,
+      });
+    }
+
+    // 2. Match summary
+    const summaryTexts = [
+      meeting.summaries.general,
+      meeting.summaries.sales,
+      meeting.summaries.oneOnOne,
+      meeting.summaries.standup,
+      ...(meeting.summaries.actionItems || []),
+    ].filter(Boolean) as string[];
+
+    for (const sumText of summaryTexts) {
+      if (sumText.toLowerCase().includes(q)) {
+        // Extract snippet around match
+        const matchIdx = sumText.toLowerCase().indexOf(q);
+        const start = Math.max(0, matchIdx - 40);
+        const end = Math.min(sumText.length, matchIdx + q.length + 60);
+        let snippet = sumText.substring(start, end);
+        if (start > 0) snippet = '...' + snippet;
+        if (end < sumText.length) snippet = snippet + '...';
+
+        results.push({
+          meetingId: meeting.id,
+          meetingTitle: meeting.title,
+          meetingDate: meeting.date,
+          meetingType: meeting.meetingType,
+          matchType: 'summary',
+          snippet,
+          timestampSec: 0,
+        });
+        break; // Max 1 summary result per meeting
+      }
+    }
+
+    // 3. Match transcript lines
+    if (meeting.transcript && meeting.transcript.length > 0) {
+      for (const line of meeting.transcript) {
+        if (line.text.toLowerCase().includes(q) || line.speaker.toLowerCase().includes(q)) {
+          results.push({
+            meetingId: meeting.id,
+            meetingTitle: meeting.title,
+            meetingDate: meeting.date,
+            meetingType: meeting.meetingType,
+            matchType: 'transcript',
+            snippet: line.text,
+            speaker: line.speaker,
+            timestampSec: line.startSec,
+          });
+        }
+      }
+    }
+  }
+
+  // Cap at 25 results
+  return results.slice(0, 25);
 }
 
 // LocalStorage Helper Keys & Utilities for Client Actions

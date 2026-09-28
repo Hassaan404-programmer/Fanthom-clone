@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
+import { GlobalSearchModal } from '@/components/search/GlobalSearchModal';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -16,6 +17,19 @@ export const AppShell: React.FC<AppShellProps> = ({
   onSearchChange = () => {},
 }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+
+  // Keyboard shortcut listener: ⌘K or Ctrl+K opens global search modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsSearchModalOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleRecordClick = () => {
     alert(
@@ -36,10 +50,7 @@ export const AppShell: React.FC<AppShellProps> = ({
         <Sidebar
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
-          onSearchClick={() => {
-            const input = document.querySelector<HTMLInputElement>('input[type="text"]');
-            if (input) input.focus();
-          }}
+          onSearchClick={() => setIsSearchModalOpen(true)}
           onSettingsClick={handleSettingsClick}
         />
 
@@ -48,7 +59,12 @@ export const AppShell: React.FC<AppShellProps> = ({
           <TopBar
             onMenuToggle={() => setSidebarOpen((prev) => !prev)}
             searchQuery={searchQuery}
-            onSearchChange={onSearchChange}
+            onSearchChange={(q) => {
+              onSearchChange(q);
+              if (q.trim().length > 0) {
+                setIsSearchModalOpen(true);
+              }
+            }}
             onRecordClick={handleRecordClick}
           />
 
@@ -57,6 +73,13 @@ export const AppShell: React.FC<AppShellProps> = ({
           </main>
         </div>
       </div>
+
+      {/* Global Search Modal overlay across all pages */}
+      <GlobalSearchModal
+        isOpen={isSearchModalOpen}
+        onClose={() => setIsSearchModalOpen(false)}
+        initialQuery={searchQuery}
+      />
     </div>
   );
 };
