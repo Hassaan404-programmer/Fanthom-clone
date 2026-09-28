@@ -10,6 +10,7 @@ import { SummaryPanel } from '@/components/summary/SummaryPanel';
 import { TranscriptPanel } from '@/components/transcript/TranscriptPanel';
 import { HighlightsPanel } from '@/components/highlights/HighlightsPanel';
 import { ClipCreatorModal } from '@/components/clip/ClipCreatorModal';
+import { ChapterTimelineStrip } from '@/components/chapters/ChapterTimelineStrip';
 import { formatDuration, formatMeetingDate } from '@/lib/utils';
 import {
   ArrowLeft,
@@ -312,14 +313,22 @@ export const MeetingDetailClient: React.FC<MeetingDetailClientProps> = ({
             </div>
           </div>
 
-          {/* Right Column: Transcript Panel */}
+          {/* Right Column: Chapter Timeline Strip + Transcript Panel */}
           <div
-            className={`lg:col-span-7 ${
+            className={`lg:col-span-7 space-y-6 ${
               mobileTab === 'summary' || mobileTab === 'highlights'
                 ? 'hidden lg:block'
                 : 'block'
             }`}
           >
+            {/* Chapter Timeline Strip */}
+            <ChapterTimelineStrip
+              chapters={meeting.chapters || []}
+              currentTime={currentTime}
+              durationSec={durationSec}
+              onSeek={handleSeek}
+            />
+
             <TranscriptPanel
               transcript={meeting.transcript || []}
               participants={meeting.participants || []}
