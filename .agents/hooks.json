@@ -1,0 +1,27 @@
+{
+  "agent-capture-hook": {
+    "PostInvocation": [
+      {
+        "type": "command",
+        "command": "python scripts/antigravity_capture.py"
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "python scripts/antigravity_capture.py"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python scripts/antigravity_capture.py"
+          }
+        ]
+      }
+    ]
+  }
+}
