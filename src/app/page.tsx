@@ -49,12 +49,12 @@ export default function HomePage() {
       // Search filter
       if (!searchQuery.trim()) return true;
       const q = searchQuery.toLowerCase();
-      const matchTitle = m.title.toLowerCase().includes(q);
+      const matchTitle = (m.title ?? '').toLowerCase().includes(q);
       const matchParticipant = m.participants.some(
         (p) =>
-          p.name.toLowerCase().includes(q) || p.email.toLowerCase().includes(q)
+          (p.name ?? '').toLowerCase().includes(q) || (p.email ?? '').toLowerCase().includes(q)
       );
-      const matchSummary = m.summaries?.general?.toLowerCase().includes(q);
+      const matchSummary = (m.summaries?.general ?? '').toLowerCase().includes(q);
       return matchTitle || matchParticipant || matchSummary;
     });
   }, [meetings, searchQuery, selectedCategory]);

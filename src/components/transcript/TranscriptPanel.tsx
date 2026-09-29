@@ -73,8 +73,8 @@ export const TranscriptPanel: React.FC<TranscriptPanelProps> = ({
       }
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
-        const textMatch = item.text.toLowerCase().includes(q);
-        const speakerMatch = item.speaker.toLowerCase().includes(q);
+        const textMatch = (item.text ?? '').toLowerCase().includes(q);
+        const speakerMatch = (item.speaker ?? '').toLowerCase().includes(q);
         return textMatch || speakerMatch;
       }
       return true;

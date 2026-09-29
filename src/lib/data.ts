@@ -12,6 +12,17 @@ export function getMeetingById(id: string): Meeting | undefined {
   return seedMeetings.find((m) => m.id === id);
 }
 
+// Helper: coerce any value to a lowercase string safely
+function safeStr(val: unknown): string {
+  if (typeof val === 'string') return val;
+  if (val === null || val === undefined) return '';
+  // ActionItem objects: extract the .text field
+  if (typeof val === 'object' && 'text' in (val as object)) {
+    return String((val as { text?: unknown }).text ?? '');
+  }
+  return String(val);
+}
+
 // Global Search function across all meetings' titles, summaries, and transcripts
 export function searchGlobalMeetings(query: string): GlobalSearchResult[] {
   if (!query || query.trim().length < 2) return [];
@@ -20,7 +31,8 @@ export function searchGlobalMeetings(query: string): GlobalSearchResult[] {
 
   for (const meeting of seedMeetings) {
     // 1. Match title
-    if (meeting.title.toLowerCase().includes(q)) {
+    const titleStr = safeStr(meeting.title);
+    if (titleStr.toLowerCase().includes(q)) {
       results.push({
         meetingId: meeting.id,
         meetingTitle: meeting.title,
@@ -32,14 +44,16 @@ export function searchGlobalMeetings(query: string): GlobalSearchResult[] {
       });
     }
 
-    // 2. Match summary
-    const summaryTexts = [
+    // 2. Match summary — coerce each entry (ActionItem objects included) to a string
+    const summaryTexts: string[] = [
       meeting.summaries.general,
       meeting.summaries.sales,
       meeting.summaries.oneOnOne,
       meeting.summaries.standup,
       ...(meeting.summaries.actionItems || []),
-    ].filter(Boolean) as string[];
+    ]
+      .map(safeStr)
+      .filter((s) => s.length > 0);
 
     for (const sumText of summaryTexts) {
       if (sumText.toLowerCase().includes(q)) {
@@ -67,15 +81,17 @@ export function searchGlobalMeetings(query: string): GlobalSearchResult[] {
     // 3. Match transcript lines
     if (meeting.transcript && meeting.transcript.length > 0) {
       for (const line of meeting.transcript) {
-        if (line.text.toLowerCase().includes(q) || line.speaker.toLowerCase().includes(q)) {
+        const lineText = safeStr(line.text);
+        const lineSpeaker = safeStr(line.speaker);
+        if (lineText.toLowerCase().includes(q) || lineSpeaker.toLowerCase().includes(q)) {
           results.push({
             meetingId: meeting.id,
             meetingTitle: meeting.title,
             meetingDate: meeting.date,
             meetingType: meeting.meetingType,
             matchType: 'transcript',
-            snippet: line.text,
-            speaker: line.speaker,
+            snippet: lineText,
+            speaker: lineSpeaker,
             timestampSec: line.startSec,
           });
         }
