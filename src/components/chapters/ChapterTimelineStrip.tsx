@@ -44,7 +44,7 @@ export const ChapterTimelineStrip: React.FC<ChapterTimelineStripProps> = ({
       </div>
 
       {/* Horizontal Scrollable Timeline Strip */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 pt-1 no-scrollbar">
+      <div className="flex items-center gap-2.5 overflow-x-auto pb-2.5 pt-1 snap-x snap-mandatory touch-pan-x scrollbar-thin">
         {chapters.map((ch, idx) => {
           const isActive = idx === activeChapterIndex;
           const isPast = currentTime > ch.endSec;
@@ -53,7 +53,7 @@ export const ChapterTimelineStrip: React.FC<ChapterTimelineStripProps> = ({
             <button
               key={ch.id}
               onClick={() => onSeek(ch.startSec)}
-              className={`flex flex-col min-w-[200px] sm:min-w-[220px] p-3 rounded-xl border text-left transition-all shrink-0 ${
+              className={`flex flex-col w-[82%] sm:w-[220px] p-3 rounded-xl border text-left transition-all shrink-0 snap-start ${
                 isActive
                   ? 'bg-indigo-600 text-white border-indigo-600 shadow-md ring-2 ring-indigo-500/20'
                   : isPast
@@ -81,7 +81,7 @@ export const ChapterTimelineStrip: React.FC<ChapterTimelineStripProps> = ({
               </div>
 
               <h4
-                className={`text-xs font-bold line-clamp-1 leading-snug ${
+                className={`text-xs font-bold line-clamp-2 leading-snug min-h-[2rem] ${
                   isActive ? 'text-white' : 'text-slate-900'
                 }`}
               >

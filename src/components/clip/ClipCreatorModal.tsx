@@ -134,6 +134,17 @@ export const ClipCreatorModal: React.FC<ClipCreatorModalProps> = ({
             </span>
           </div>
 
+          {/* Visual Track Preview */}
+          <div className="relative w-full h-2.5 bg-slate-200 rounded-full overflow-hidden my-1">
+            <div
+              className="absolute top-0 bottom-0 bg-indigo-600 rounded-full transition-all"
+              style={{
+                left: `${durationSec > 0 ? (startSec / durationSec) * 100 : 0}%`,
+                width: `${durationSec > 0 ? Math.max(1, ((endSec - startSec) / durationSec) * 100) : 100}%`,
+              }}
+            />
+          </div>
+
           {/* Start Slider */}
           <div className="space-y-1">
             <div className="flex justify-between text-[11px] font-semibold text-slate-600">
@@ -143,10 +154,17 @@ export const ClipCreatorModal: React.FC<ClipCreatorModalProps> = ({
             <input
               type="range"
               min={0}
-              max={Math.max(0, endSec - 5)}
+              max={Math.max(0, durationSec - 5)}
+              step={1}
               value={startSec}
-              onChange={(e) => setStartSec(Number(e.target.value))}
-              className="w-full accent-indigo-600 cursor-pointer"
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                setStartSec(val);
+                if (val >= endSec - 5) {
+                  setEndSec(Math.min(durationSec, val + 5));
+                }
+              }}
+              className="w-full accent-indigo-600 cursor-pointer h-2 bg-slate-200 rounded-lg touch-none"
             />
           </div>
 
@@ -158,11 +176,18 @@ export const ClipCreatorModal: React.FC<ClipCreatorModalProps> = ({
             </div>
             <input
               type="range"
-              min={startSec + 5}
-              max={durationSec}
+              min={5}
+              max={durationSec || 3600}
+              step={1}
               value={endSec}
-              onChange={(e) => setEndSec(Number(e.target.value))}
-              className="w-full accent-indigo-600 cursor-pointer"
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                setEndSec(val);
+                if (val <= startSec + 5) {
+                  setStartSec(Math.max(0, val - 5));
+                }
+              }}
+              className="w-full accent-indigo-600 cursor-pointer h-2 bg-slate-200 rounded-lg touch-none"
             />
           </div>
         </div>

@@ -44,6 +44,31 @@ export const MeetingDetailClient: React.FC<MeetingDetailClientProps> = ({
   const [activeLeftTab, setActiveLeftTab] = useState<'summary' | 'highlights'>('summary');
   const [isClipModalOpen, setIsClipModalOpen] = useState<boolean>(false);
   const [copiedShare, setCopiedShare] = useState<boolean>(false);
+  const summaryRef = useRef<HTMLDivElement>(null);
+  const highlightsRef = useRef<HTMLDivElement>(null);
+  const transcriptRef = useRef<HTMLDivElement>(null);
+  const mobileTabNavRef = useRef<HTMLDivElement>(null);
+
+  const handleMobileTabClick = (tab: 'transcript' | 'summary' | 'highlights') => {
+    setMobileTab(tab);
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      setTimeout(() => {
+        let targetEl: HTMLElement | null = null;
+        if (tab === 'transcript' && transcriptRef.current) {
+          targetEl = transcriptRef.current;
+        } else if (tab === 'summary' && summaryRef.current) {
+          targetEl = summaryRef.current;
+        } else if (tab === 'highlights' && highlightsRef.current) {
+          targetEl = highlightsRef.current;
+        }
+        if (targetEl) {
+          targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else if (mobileTabNavRef.current) {
+          mobileTabNavRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 50);
+    }
+  };
 
   const durationSec = meeting.durationSec || 3600;
   const lastTimeRef = useRef<number | null>(null);
@@ -199,9 +224,9 @@ export const MeetingDetailClient: React.FC<MeetingDetailClientProps> = ({
         </div>
 
         {/* Mobile Tab Controls (< lg screens) */}
-        <div className="lg:hidden flex items-center p-1 bg-slate-200/70 rounded-xl border border-slate-300/60">
+        <div ref={mobileTabNavRef} className="lg:hidden flex items-center p-1 bg-slate-200/70 rounded-xl border border-slate-300/60">
           <button
-            onClick={() => setMobileTab('transcript')}
+            onClick={() => handleMobileTabClick('transcript')}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all ${
               mobileTab === 'transcript'
                 ? 'bg-white text-indigo-700 shadow-xs'
@@ -212,7 +237,7 @@ export const MeetingDetailClient: React.FC<MeetingDetailClientProps> = ({
             <span>Transcript</span>
           </button>
           <button
-            onClick={() => setMobileTab('summary')}
+            onClick={() => handleMobileTabClick('summary')}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all ${
               mobileTab === 'summary'
                 ? 'bg-white text-indigo-700 shadow-xs'
@@ -223,7 +248,7 @@ export const MeetingDetailClient: React.FC<MeetingDetailClientProps> = ({
             <span>Summary</span>
           </button>
           <button
-            onClick={() => setMobileTab('highlights')}
+            onClick={() => handleMobileTabClick('highlights')}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all ${
               mobileTab === 'highlights'
                 ? 'bg-white text-indigo-700 shadow-xs'
@@ -283,6 +308,7 @@ export const MeetingDetailClient: React.FC<MeetingDetailClientProps> = ({
             <div className="space-y-6">
               {/* Summary View */}
               <div
+                ref={summaryRef}
                 className={`space-y-6 ${
                   mobileTab === 'summary' || activeLeftTab === 'summary'
                     ? 'block'
@@ -305,6 +331,7 @@ export const MeetingDetailClient: React.FC<MeetingDetailClientProps> = ({
 
               {/* Highlights View */}
               <div
+                ref={highlightsRef}
                 className={`${
                   mobileTab === 'highlights' || activeLeftTab === 'highlights'
                     ? 'block'
@@ -324,6 +351,7 @@ export const MeetingDetailClient: React.FC<MeetingDetailClientProps> = ({
 
           {/* Right Column: Chapter Timeline Strip + Transcript Panel */}
           <div
+            ref={transcriptRef}
             className={`lg:col-span-7 space-y-4 lg:sticky lg:top-20 lg:h-[calc(100vh-6.5rem)] lg:flex lg:flex-col ${
               mobileTab === 'summary' || mobileTab === 'highlights'
                 ? 'hidden lg:flex'
